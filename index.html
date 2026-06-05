@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ABSURDITY INDEX // 荒谬指数 — 赛博朋克风格的个人荒谬事件追踪系统，将职场荒谬流程游戏化">
+  <title>ABSURDITY INDEX // 荒谬指数</title>
+
+  <!-- ============================================================
+       FAVICON
+       ============================================================ -->
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <!-- ============================================================
+       GOOGLE FONTS
+       - Orbitron: 标题/数字（科技感）
+       - Noto Sans SC: 中文正文
+       - JetBrains Mono: 代码/标签
+       ============================================================ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <!-- ============================================================
+       CSS 样式文件（按顺序加载）
+       实现指导：
+       1. index.css      — 设计系统：CSS 变量、reset、基础排版
+       2. layout.css     — 侧边栏、页面容器、网格布局
+       3. components.css — 通用组件：卡片、按钮、输入框、模态框、进度条
+       4. dashboard.css  — 仪表盘模块专用样式
+       5. record.css     — 记录事件模块专用样式
+       6. achievements.css — 成就殿堂模块专用样式
+       7. report.css     — 周报模块专用样式
+       8. settings.css   — 控制台/设置模块专用样式
+       9. animations.css — 霓虹发光、故障风(Glitch)、扫描线、呼吸灯动画
+
+       调色板（CSS 变量建议）：
+         --bg-primary:     #0a0a0f  (深空黑)
+         --bg-secondary:   #12121a  (暗夜蓝黑)
+         --bg-card:        #1a1a2e  (星空灰)
+         --accent-green:   #39FF14  (毒液绿/霓虹，主强调色)
+         --accent-purple:  #BF40BF  (电磁紫，次强调色)
+         --accent-blue:    #00D4FF  (赛博蓝，辅助色)
+         --accent-gold:    #FFD700  (熔岩金，警告/史诗)
+         --text-primary:   #e0e0e0  (银灰)
+         --text-secondary: #888888  (暗灰)
+
+       事件等级颜色映射：
+         BASIC  — --accent-green  (#39FF14)  +1分  ⚡
+         COMBO  — --accent-blue   (#00D4FF)  +3分  🔗
+         RARE   — --accent-purple (#BF40BF)  +10分 💎
+         EPIC   — --accent-gold   (#FFD700)  +50分 🔥
+
+       字体栈：
+         --font-display: 'Orbitron', sans-serif;       (标题/数字)
+         --font-body:    'Noto Sans SC', sans-serif;    (正文)
+         --font-mono:    'JetBrains Mono', monospace;   (代码/标签)
+
+       特效提醒：
+         - 霓虹发光：多层 text-shadow / box-shadow
+         - 故障风：@keyframes 文字抖动 + 色差偏移
+         - 扫描线：伪元素 + 半透明横线 repeating-linear-gradient
+         - 渐变边框：border-image 或 background-clip
+         - 呼吸灯：脉冲发光 @keyframes
+       ============================================================ -->
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/record.css">
+  <link rel="stylesheet" href="css/achievements.css">
+  <link rel="stylesheet" href="css/report.css">
+  <link rel="stylesheet" href="css/settings.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       CRT 扫描线 OVERLAY
+       实现指导：
+       - 固定定位覆盖全屏，pointer-events: none
+       - 使用 repeating-linear-gradient 模拟 CRT 水平扫描线
+       - 透明度极低(0.03~0.05)，不影响可读性
+       - z-index 最高层
+       ============================================================ -->
+  <div id="scanline-overlay" class="scanline-overlay" aria-hidden="true"></div>
+
+  <!-- ============================================================
+       应用主容器
+       布局：左侧固定侧边栏 + 右侧内容区域
+       建议使用 CSS Grid: grid-template-columns: 260px 1fr;
+       ============================================================ -->
+  <div id="app" class="app-container">
+
+    <!-- ==========================================================
+         侧边栏导航
+         实现指导：
+         - 固定宽度 260px，全高
+         - 顶部：Logo/品牌名 "ABSURDITY INDEX" (Orbitron 字体 + 霓虹绿发光)
+         - 导航项带图标，当前活跃项高亮(霓虹绿左侧边框 + 背景微亮)
+         - 底部：版本号或装饰性文字
+         - 导航项 data-page 属性对应各模块 ID
+         ========================================================== -->
+    <nav id="sidebar" class="sidebar">
+      <div class="sidebar__brand">
+        <h1 class="sidebar__logo glitch-text" data-text="ABSURDITY">
+          <span class="logo-line-1">ABSURDITY</span>
+          <span class="logo-line-2">INDEX</span>
+        </h1>
+        <p class="sidebar__subtitle">// 荒谬指数</p>
+      </div>
+
+      <ul class="sidebar__nav">
+        <li>
+          <a href="#dashboard" class="sidebar__link active" data-page="dashboard" id="nav-dashboard">
+            <span class="sidebar__icon">📊</span>
+            <span class="sidebar__label">DASHBOARD</span>
+            <span class="sidebar__label-cn">仪表盘</span>
+          </a>
+        </li>
+        <li>
+          <a href="#record" class="sidebar__link" data-page="record" id="nav-record">
+            <span class="sidebar__icon">📝</span>
+            <span class="sidebar__label">RECORD</span>
+            <span class="sidebar__label-cn">记录事件</span>
+          </a>
+        </li>
+        <li>
+          <a href="#achievements" class="sidebar__link" data-page="achievements" id="nav-achievements">
+            <span class="sidebar__icon">🏆</span>
+            <span class="sidebar__label">ACHIEVEMENTS</span>
+            <span class="sidebar__label-cn">成就殿堂</span>
+          </a>
+        </li>
+        <li>
+          <a href="#report" class="sidebar__link" data-page="report" id="nav-report">
+            <span class="sidebar__icon">📋</span>
+            <span class="sidebar__label">WEEKLY REPORT</span>
+            <span class="sidebar__label-cn">荒谬周报</span>
+          </a>
+        </li>
+        <li>
+          <a href="#settings" class="sidebar__link" data-page="settings" id="nav-settings">
+            <span class="sidebar__icon">⚙️</span>
+            <span class="sidebar__label">SETTINGS</span>
+            <span class="sidebar__label-cn">控制台</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar__footer">
+        <p class="sidebar__version">v1.0.0 // SYSTEM ONLINE</p>
+      </div>
+    </nav>
+
+    <!-- ==========================================================
+         主内容区域
+         实现指导：
+         - 占据侧边栏右侧全部剩余空间
+         - 内边距适当(约 2rem)
+         - 溢出滚动
+         - 顶部可放置一个全局操作栏(快速记录按钮等)
+         ========================================================== -->
+    <main id="main-content" class="main-content">
+
+      <!-- ========================================================
+           全局顶部操作栏
+           - 快速记录按钮 [+ RECORD // 记录荒谬]
+           - 霓虹绿按钮，带脉冲/呼吸灯动画
+           - 点击后导航到 Record 页面或弹出快速记录模态框
+           ======================================================== -->
+      <header id="top-bar" class="top-bar">
+        <button id="btn-quick-record" class="btn btn--primary btn--glow" type="button">
+          <span class="btn__icon">+</span>
+          <span class="btn__text">RECORD // 记录荒谬</span>
+        </button>
+      </header>
+
+
+      <!-- ========================================================
+           MODULE 1: DASHBOARD // 仪表盘（首页）
+           ========================================================
+           实现指导 (dashboard.js + dashboard.css):
+
+           核心元素：
+           1. 荒谬总值 — 大号 Orbitron 字体霓虹数字
+              - 实时显示 store.level.totalScore
+              - 多层 text-shadow 绿色霓虹发光
+              - 数值变化时播放递增动画
+
+           2. 当前等级 — AI 生成的等级名称 + 进度条
+              - 显示 store.level.currentTitle
+              - 进度条显示距离下一阶段的百分比
+              - 进度条带霓虹渐变色
+
+           3. 本周趋势 — 迷你折线图(Chart.js)
+              - 调用 charts.js 中封装的 createMiniLineChart()
+              - 横轴：本周每天
+              - 纵轴：每日新增荒谬值
+              - 线条颜色：霓虹绿
+
+           4. 最近事件 — 最近 5 条荒谬事件卡片
+              - 从 store.events 取最新 5 条
+              - 每张卡片显示：等级图标、标题、分数、时间
+              - 左侧边框颜色对应事件等级
+           ======================================================== -->
+      <section id="page-dashboard" class="page page--active" data-page="dashboard">
+        <div class="page__header">
+          <h2 class="page__title glitch-text" data-text="DASHBOARD">DASHBOARD</h2>
+          <p class="page__subtitle">// 系统概览</p>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- 荒谬总值卡片 -->
+          <div id="card-total-score" class="card card--highlight dashboard__total-score">
+            <div class="card__header">
+              <span class="card__label">TOTAL ABSURDITY // 荒谬总值</span>
+            </div>
+            <div class="card__body">
+              <span id="total-score-value" class="score-display neon-glow">0</span>
+              <span class="score-unit">PTS</span>
+            </div>
+          </div>
+
+          <!-- 当前等级卡片 -->
+          <div id="card-current-level" class="card dashboard__current-level">
+            <div class="card__header">
+              <span class="card__label">CURRENT LEVEL // 当前等级</span>
+              <span id="level-stage-badge" class="badge badge--stage">阶段 1</span>
+            </div>
+            <div class="card__body">
+              <h3 id="level-title" class="level-title">形式主义实习生</h3>
+              <div class="progress-bar">
+                <div id="level-progress" class="progress-bar__fill" style="width: 0%"></div>
+              </div>
+              <p id="level-progress-text" class="progress-text">0 / 50 到下一阶段</p>
+            </div>
+          </div>
+
+          <!-- 本周趋势卡片 -->
+          <div id="card-weekly-trend" class="card dashboard__weekly-trend">
+            <div class="card__header">
+              <span class="card__label">WEEKLY TREND // 本周趋势</span>
+            </div>
+            <div class="card__body">
+              <canvas id="chart-mini-trend"></canvas>
+            </div>
+          </div>
+
+          <!-- 最近事件列表 -->
+          <div id="card-recent-events" class="card dashboard__recent-events">
+            <div class="card__header">
+              <span class="card__label">RECENT EVENTS // 最近事件</span>
+            </div>
+            <div class="card__body">
+              <ul id="recent-events-list" class="event-list">
+                <!-- JS 动态渲染，每个 li 结构如下：
+                <li class="event-item event-item--{level}">
+                  <span class="event-item__icon">{emoji}</span>
+                  <div class="event-item__info">
+                    <span class="event-item__title">{title}</span>
+                    <span class="event-item__time">{relative_time}</span>
+                  </div>
+                  <span class="event-item__score">+{score}</span>
+                </li>
+                -->
+                <li class="event-list__empty">
+                  <span class="empty-icon">🌑</span>
+                  <p>尚无荒谬记录</p>
+                  <p class="text-secondary">点击上方按钮开始记录</p>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ========================================================
+           MODULE 2: RECORD // 记录事件
+           ========================================================
+           实现指导 (record.js + record.css):
+
+           两种记录方式：
+
+           方式一：AI 智能识别
+           - 大文本输入框(textarea)，placeholder="描述你遇到的荒谬事件..."
+           - "AI 分析" 按钮，点击后：
+             1. 构建 eventAnalysis Prompt（见 ai.js）
+             2. 调用 AI API
+             3. 解析返回的 JSON（level/score/title/achievement/comment）
+             4. 在预览区域显示分析结果
+             5. 用户点击 "确认提交" 保存到 store
+           - 加载状态：按钮显示 "ANALYZING..." + 旋转动画
+           - AI 不可用时：提示用户使用手动选择等级
+
+           方式二：经典事件快捷按钮
+           - 预设荒谬事件按钮网格
+           - 每个按钮显示：emoji + 描述 + 分数
+           - 点击后：
+             1. 如果 AI 可用，调用 AI 生成成就
+             2. 如果 AI 不可用，从预设成就池随机选取
+             3. 弹出确认/预览模态框
+             4. 确认后保存到 store
+           - 预设事件列表（data-level / data-score）：
+             🔄 "明明可以自动却非要手动"          basic  +1
+             📝 "日报时间大于工作时间"            basic  +1
+             📋 "同一字段三个地方手工填写"        combo  +3
+             🔁 "重复填写已有系统里的数据"        basic  +1
+             📊 "为了汇报而汇报"                  basic  +1
+             🙄 "领导也不知道为什么"              rare   +10
+             ❌ "优化方案被'上级要求'驳回"        epic   +50
+           ======================================================== -->
+      <section id="page-record" class="page" data-page="record">
+        <div class="page__header">
+          <h2 class="page__title glitch-text" data-text="RECORD">RECORD</h2>
+          <p class="page__subtitle">// 记录荒谬事件</p>
+        </div>
+
+        <!-- AI 智能识别区域 -->
+        <div class="record-section">
+          <h3 class="section-title">
+            <span class="section-icon">🤖</span>
+            AI ANALYSIS // AI 智能识别
+          </h3>
+          <div class="record-ai">
+            <textarea
+              id="record-ai-input"
+              class="input-textarea"
+              placeholder="描述你遇到的荒谬事件...&#10;例如：今天花了2小时手动整理一份数据，而这份数据在另一个系统里已经有了完整的版本"
+              rows="4"
+            ></textarea>
+            <button id="btn-ai-analyze" class="btn btn--accent" type="button">
+              <span class="btn__icon">🔍</span>
+              <span class="btn__text">AI 分析</span>
+            </button>
+          </div>
+
+          <!-- AI 分析结果预览（初始隐藏） -->
+          <div id="ai-result-preview" class="ai-preview hidden">
+            <!--
+              JS 动态填充：
+              - 事件等级标签 (level badge，颜色对应等级)
+              - 事件标题 (AI 返回的 title)
+              - 荒谬值 (+score)
+              - AI 毒舌点评 (comment)
+              - 成就预览 (如果有 achievement)
+              - [确认提交] 和 [重新分析] 按钮
+            -->
+            <div class="ai-preview__header">
+              <span id="ai-result-level" class="badge">BASIC</span>
+              <span id="ai-result-score" class="score-badge">+1</span>
+            </div>
+            <h4 id="ai-result-title" class="ai-preview__title"></h4>
+            <p id="ai-result-comment" class="ai-preview__comment"></p>
+            <div id="ai-result-achievement" class="ai-preview__achievement hidden">
+              <span class="achievement-icon" id="ai-result-achievement-emoji"></span>
+              <div>
+                <p class="achievement-name" id="ai-result-achievement-name"></p>
+                <p class="achievement-desc" id="ai-result-achievement-desc"></p>
+              </div>
+            </div>
+            <div class="ai-preview__actions">
+              <button id="btn-confirm-ai" class="btn btn--primary" type="button">确认提交</button>
+              <button id="btn-retry-ai" class="btn btn--ghost" type="button">重新分析</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 经典事件快捷按钮区域 -->
+        <div class="record-section">
+          <h3 class="section-title">
+            <span class="section-icon">⚡</span>
+            QUICK LOG // 经典事件快捷记录
+          </h3>
+          <div id="quick-events-grid" class="quick-events-grid">
+            <button class="quick-event-btn" data-level="basic" data-score="1" data-desc="明明可以自动却非要手动" type="button">
+              <span class="quick-event-btn__icon">🔄</span>
+              <span class="quick-event-btn__text">明明可以自动却非要手动</span>
+              <span class="quick-event-btn__score badge badge--basic">+1</span>
+            </button>
+            <button class="quick-event-btn" data-level="basic" data-score="1" data-desc="日报时间大于工作时间" type="button">
+              <span class="quick-event-btn__icon">📝</span>
+              <span class="quick-event-btn__text">日报时间大于工作时间</span>
+              <span class="quick-event-btn__score badge badge--basic">+1</span>
+            </button>
+            <button class="quick-event-btn" data-level="combo" data-score="3" data-desc="同一字段三个地方手工填写" type="button">
+              <span class="quick-event-btn__icon">📋</span>
+              <span class="quick-event-btn__text">同一字段三个地方手工填写</span>
+              <span class="quick-event-btn__score badge badge--combo">+3</span>
+            </button>
+            <button class="quick-event-btn" data-level="basic" data-score="1" data-desc="重复填写已有系统里的数据" type="button">
+              <span class="quick-event-btn__icon">🔁</span>
+              <span class="quick-event-btn__text">重复填写已有系统里的数据</span>
+              <span class="quick-event-btn__score badge badge--basic">+1</span>
+            </button>
+            <button class="quick-event-btn" data-level="basic" data-score="1" data-desc="为了汇报而汇报" type="button">
+              <span class="quick-event-btn__icon">📊</span>
+              <span class="quick-event-btn__text">为了汇报而汇报</span>
+              <span class="quick-event-btn__score badge badge--basic">+1</span>
+            </button>
+            <button class="quick-event-btn" data-level="rare" data-score="10" data-desc="领导也不知道为什么" type="button">
+              <span class="quick-event-btn__icon">🙄</span>
+              <span class="quick-event-btn__text">领导也不知道为什么</span>
+              <span class="quick-event-btn__score badge badge--rare">+10</span>
+            </button>
+            <button class="quick-event-btn" data-level="epic" data-score="50" data-desc="优化方案被'上级要求'驳回" type="button">
+              <span class="quick-event-btn__icon">❌</span>
+              <span class="quick-event-btn__text">优化方案被"上级要求"驳回</span>
+              <span class="quick-event-btn__score badge badge--epic">+50</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ========================================================
+           MODULE 3: ACHIEVEMENTS // 成就殿堂
+           ========================================================
+           实现指导 (achievements.js + achievements.css):
+
+           - 成就展示墙：CSS Grid 卡片布局
+           - 已解锁成就：带发光边框(对应稀有度颜色)
+             - 普通(common)  — 灰白边框
+             - 稀有(rare)    — 电磁紫边框
+             - 史诗(epic)    — 熔岩金边框
+             - 传说(legendary) — 彩虹渐变边框
+           - 未解锁成就：暗色卡片 + 锁图标 + filter: grayscale
+           - 每张成就卡片包含：
+             - emoji 图标 (大号)
+             - 成就名称 (Orbitron 字体)
+             - 触发条件/描述
+             - 解锁时间
+             - 稀有度标记角标
+           - 空状态提示："尚无成就解锁，去记录一些荒谬事件吧！"
+           ======================================================== -->
+      <section id="page-achievements" class="page" data-page="achievements">
+        <div class="page__header">
+          <h2 class="page__title glitch-text" data-text="ACHIEVEMENTS">ACHIEVEMENTS</h2>
+          <p class="page__subtitle">// 成就殿堂</p>
+        </div>
+
+        <div class="achievements-stats">
+          <span id="achievements-count" class="achievements-stats__count">0</span>
+          <span class="achievements-stats__label">已解锁成就</span>
+        </div>
+
+        <div id="achievements-grid" class="achievements-grid">
+          <!--
+            JS 动态渲染，每个成就卡片结构：
+            <div class="achievement-card achievement-card--{rarity} {achievement-card--locked}">
+              <div class="achievement-card__rarity-badge">{rarity}</div>
+              <span class="achievement-card__emoji">{emoji}</span>
+              <h4 class="achievement-card__name">{name}</h4>
+              <p class="achievement-card__desc">{description}</p>
+              <time class="achievement-card__time">{unlockedAt}</time>
+            </div>
+          -->
+          <div class="achievements-grid__empty">
+            <span class="empty-icon">🔒</span>
+            <p>尚无成就解锁</p>
+            <p class="text-secondary">去记录一些荒谬事件吧！</p>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ========================================================
+           MODULE 4: WEEKLY REPORT // 荒谬周报
+           ========================================================
+           实现指导 (report.js + report.css):
+
+           - 默认显示"本周"周报，可切换历史周报
+           - 周报内容区域(#report-content)用于 html2canvas 截图导出
+           - 统计数据：
+             1. 本周总荒谬值 & 与上周对比 (↑/↓ 百分比)
+             2. 荒谬值周趋势折线图 (Chart.js line chart)
+             3. 各等级事件占比环形图 (Chart.js doughnut chart)
+             4. 最荒谬事件 TOP3
+             5. 本周新解锁成就
+           - 导出按钮：调用 html2canvas 将 #report-content 转为 PNG
+           - 历史周报列表：从 store.weeklyReports 加载
+           - "一周"使用自然周（周一到周日）
+           ======================================================== -->
+      <section id="page-report" class="page" data-page="report">
+        <div class="page__header">
+          <h2 class="page__title glitch-text" data-text="WEEKLY REPORT">WEEKLY REPORT</h2>
+          <p class="page__subtitle">// 荒谬周报</p>
+        </div>
+
+        <div class="report-controls">
+          <select id="report-week-selector" class="input-select">
+            <option value="current">本周</option>
+            <!-- JS 动态追加历史周选项 -->
+          </select>
+          <button id="btn-export-report" class="btn btn--accent" type="button">
+            <span class="btn__icon">📸</span>
+            <span class="btn__text">导出为图片</span>
+          </button>
+        </div>
+
+        <!-- 周报内容区域（用于截图导出） -->
+        <div id="report-content" class="report-content">
+          <!-- 周报头部 -->
+          <div class="report-header">
+            <h3 class="report-header__title">ABSURDITY WEEKLY</h3>
+            <p id="report-date-range" class="report-header__date">2026.06.02 — 2026.06.08</p>
+          </div>
+
+          <!-- 周统计数字 -->
+          <div class="report-stats-row">
+            <div class="report-stat-card">
+              <span class="report-stat-card__label">本周荒谬值</span>
+              <span id="report-week-score" class="report-stat-card__value neon-glow">0</span>
+              <span id="report-week-delta" class="report-stat-card__delta">—</span>
+            </div>
+            <div class="report-stat-card">
+              <span class="report-stat-card__label">事件数量</span>
+              <span id="report-event-count" class="report-stat-card__value">0</span>
+            </div>
+            <div class="report-stat-card">
+              <span class="report-stat-card__label">新成就</span>
+              <span id="report-new-achievements" class="report-stat-card__value">0</span>
+            </div>
+          </div>
+
+          <!-- 图表区域 -->
+          <div class="report-charts-row">
+            <div class="report-chart-container">
+              <h4 class="report-chart-title">荒谬值趋势</h4>
+              <canvas id="chart-report-trend"></canvas>
+            </div>
+            <div class="report-chart-container">
+              <h4 class="report-chart-title">事件等级分布</h4>
+              <canvas id="chart-report-distribution"></canvas>
+            </div>
+          </div>
+
+          <!-- TOP3 最荒谬事件 -->
+          <div class="report-section">
+            <h4 class="report-section__title">🔥 最荒谬事件 TOP3</h4>
+            <ol id="report-top-events" class="report-top-events">
+              <!--
+                JS 动态渲染：
+                <li class="report-top-event">
+                  <span class="report-top-event__rank">#1</span>
+                  <span class="report-top-event__title">{title}</span>
+                  <span class="report-top-event__score badge badge--{level}">+{score}</span>
+                </li>
+              -->
+              <li class="report-top-events__empty">本周暂无记录</li>
+            </ol>
+          </div>
+
+          <!-- 本周新解锁成就 -->
+          <div class="report-section">
+            <h4 class="report-section__title">🏆 本周新解锁成就</h4>
+            <div id="report-achievements-list" class="report-achievements">
+              <p class="report-achievements__empty">本周暂无新成就</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ========================================================
+           MODULE 5: SETTINGS // 控制台
+           ========================================================
+           实现指导 (settings.js + settings.css):
+
+           三个配置区域：
+
+           1. AI 配置面板：
+              - API Base URL 输入框 (text)
+                placeholder="https://api.openai.com/v1"
+              - API Key 输入框 (password)
+                placeholder="sk-..."
+              - 模型名称输入框 (text)
+                placeholder="gpt-3.5-turbo"
+                默认值: "gpt-3.5-turbo"
+              - [测试连接] 按钮
+                调用 AI API 发送简单测试请求
+                成功：绿色 ✓ 提示
+                失败：红色 ✗ 提示 + 错误信息
+              - 保存到 store.aiConfig
+
+           2. 提示词预设管理：
+              - 三个可编辑 textarea：
+                a. 事件分析提示词 (eventAnalysis)
+                b. 成就生成提示词 (achievementGen)
+                c. 等级命名提示词 (levelNaming)
+              - [恢复默认] 按钮（每个提示词单独恢复）
+              - 保存到 store.aiConfig.prompts
+
+           3. 数据管理：
+              - [导出数据] 按钮 — 将 store 数据导出为 JSON 文件下载
+              - [导入数据] 按钮 — 选择 JSON 文件导入（合并/覆盖）
+              - [清空所有数据] 按钮 — 红色警告按钮，二次确认模态框
+           ======================================================== -->
+      <section id="page-settings" class="page" data-page="settings">
+        <div class="page__header">
+          <h2 class="page__title glitch-text" data-text="SETTINGS">SETTINGS</h2>
+          <p class="page__subtitle">// 控制台</p>
+        </div>
+
+        <!-- AI 配置 -->
+        <div class="settings-section">
+          <h3 class="section-title">
+            <span class="section-icon">🤖</span>
+            AI CONFIGURATION // AI 配置
+          </h3>
+          <div class="settings-form">
+            <div class="form-group">
+              <label for="setting-api-url" class="form-label">API Base URL</label>
+              <input
+                type="text"
+                id="setting-api-url"
+                class="input-text"
+                placeholder="https://api.openai.com/v1"
+              >
+            </div>
+            <div class="form-group">
+              <label for="setting-api-key" class="form-label">API Key</label>
+              <input
+                type="password"
+                id="setting-api-key"
+                class="input-text"
+                placeholder="sk-..."
+              >
+            </div>
+            <div class="form-group">
+              <label for="setting-model" class="form-label">Model // 模型</label>
+              <input
+                type="text"
+                id="setting-model"
+                class="input-text"
+                placeholder="gpt-3.5-turbo"
+                value="gpt-3.5-turbo"
+              >
+            </div>
+            <div class="form-actions">
+              <button id="btn-test-connection" class="btn btn--accent" type="button">
+                <span class="btn__text">测试连接</span>
+              </button>
+              <span id="connection-status" class="connection-status"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 提示词管理 -->
+        <div class="settings-section">
+          <h3 class="section-title">
+            <span class="section-icon">💬</span>
+            PROMPT TEMPLATES // 提示词模板
+          </h3>
+
+          <div class="prompt-editor">
+            <div class="prompt-group">
+              <div class="prompt-group__header">
+                <label for="prompt-event-analysis" class="form-label">事件分析提示词</label>
+                <button class="btn btn--ghost btn--sm" data-reset-prompt="eventAnalysis" type="button">恢复默认</button>
+              </div>
+              <textarea id="prompt-event-analysis" class="input-textarea input-textarea--code" rows="6"></textarea>
+            </div>
+
+            <div class="prompt-group">
+              <div class="prompt-group__header">
+                <label for="prompt-achievement-gen" class="form-label">成就生成提示词</label>
+                <button class="btn btn--ghost btn--sm" data-reset-prompt="achievementGen" type="button">恢复默认</button>
+              </div>
+              <textarea id="prompt-achievement-gen" class="input-textarea input-textarea--code" rows="6"></textarea>
+            </div>
+
+            <div class="prompt-group">
+              <div class="prompt-group__header">
+                <label for="prompt-level-naming" class="form-label">等级命名提示词</label>
+                <button class="btn btn--ghost btn--sm" data-reset-prompt="levelNaming" type="button">恢复默认</button>
+              </div>
+              <textarea id="prompt-level-naming" class="input-textarea input-textarea--code" rows="6"></textarea>
+            </div>
+
+            <button id="btn-save-prompts" class="btn btn--primary" type="button">
+              <span class="btn__text">保存提示词</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 数据管理 -->
+        <div class="settings-section">
+          <h3 class="section-title">
+            <span class="section-icon">💾</span>
+            DATA MANAGEMENT // 数据管理
+          </h3>
+          <div class="data-actions">
+            <button id="btn-export-data" class="btn btn--accent" type="button">
+              <span class="btn__icon">📤</span>
+              <span class="btn__text">导出数据 (JSON)</span>
+            </button>
+            <button id="btn-import-data" class="btn btn--accent" type="button">
+              <span class="btn__icon">📥</span>
+              <span class="btn__text">导入数据</span>
+            </button>
+            <input type="file" id="import-file-input" accept=".json" class="hidden">
+            <button id="btn-clear-data" class="btn btn--danger" type="button">
+              <span class="btn__icon">🗑️</span>
+              <span class="btn__text">清空所有数据</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+
+  <!-- ============================================================
+       模态框容器
+       实现指导：
+       - 全屏半透明黑色遮罩
+       - 居中模态框卡片
+       - 用于：确认对话框、事件预览、错误提示等
+       - 默认隐藏(class="hidden")
+       - JS 控制显示/隐藏
+       ============================================================ -->
+  <div id="modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div id="modal-content" class="modal">
+      <div class="modal__header">
+        <h3 id="modal-title" class="modal__title"></h3>
+        <button id="btn-modal-close" class="modal__close" type="button" aria-label="关闭">&times;</button>
+      </div>
+      <div id="modal-body" class="modal__body">
+        <!-- JS 动态填充 -->
+      </div>
+      <div id="modal-footer" class="modal__footer">
+        <!-- JS 动态填充按钮 -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       通知 / Toast 容器
+       实现指导：
+       - 固定定位在右上角
+       - 从上方滑入，自动消失(3秒)
+       - 支持多种类型：success(绿)、error(红)、info(蓝)、warning(金)
+       ============================================================ -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+
+  <!-- ============================================================
+       CDN 依赖
+       ============================================================ -->
+  <!-- Chart.js — 图表库 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- html2canvas — 周报导出为图片 -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas"></script>
+
+
+  <!-- ============================================================
+       JS 模块文件（按依赖顺序加载）
+       实现指导：
+
+       1. utils.js — 工具函数
+          - generateUUID(): 生成唯一 ID
+          - formatDate(isoString): 格式化日期
+          - relativeTime(isoString): 相对时间（如"3分钟前"）
+          - getWeekRange(date?): 返回本周一和周日的日期范围
+          - debounce(fn, ms): 防抖函数
+          - clamp(val, min, max): 数值截断
+
+       2. store.js — 数据层
+          - STORAGE_KEY = 'absurdity_data'
+          - initStore(): 初始化/加载数据
+          - saveStore(): 保存到 localStorage
+          - getStore(): 获取当前数据对象
+          - addEvent(eventData): 添加事件记录
+          - addAchievement(achievementData): 添加成就
+          - updateLevel(): 重新计算等级阶段
+          - getWeeklyStats(weekStart, weekEnd): 获取某周统计
+          - exportData(): 导出 JSON 字符串
+          - importData(jsonString): 导入数据
+          - clearData(): 清空所有数据
+          数据模型参考 implementation_plan.md 中的 localStorage 数据结构
+
+       3. ai.js — AI 服务层
+          - getAIConfig(): 从 store 获取 AI 配置
+          - isAIAvailable(): 检查 AI 是否可用(有 baseUrl 和 apiKey)
+          - callAI(messages): 通用 AI 调用封装
+            fetch(baseUrl + '/chat/completions', { headers, body })
+          - analyzeEvent(description): 事件分析
+          - generateAchievement(level, description): 成就生成
+          - generateLevelName(score, stage): 等级名称生成
+          - testConnection(): 测试连接
+          降级策略：AI 不可用时使用预设值
+
+       4. charts.js — Chart.js 封装
+          - createMiniLineChart(canvasId, data): 仪表盘迷你趋势图
+          - createTrendLineChart(canvasId, data): 周报趋势折线图
+          - createDistributionChart(canvasId, data): 周报事件分布环形图
+          - 统一赛博朋克主题配置(暗色背景、霓虹色线条、网格线等)
+          - 响应式配置
+
+       5. dashboard.js — 仪表盘模块
+          - initDashboard(): 初始化仪表盘
+          - updateDashboard(): 刷新所有仪表盘数据
+          - renderTotalScore(): 渲染荒谬总值(带动画)
+          - renderLevel(): 渲染等级和进度条
+          - renderMiniTrend(): 渲染迷你趋势图
+          - renderRecentEvents(): 渲染最近事件列表
+
+       6. record.js — 事件记录模块
+          - initRecord(): 初始化记录模块
+          - handleAIAnalyze(): 处理 AI 分析按钮点击
+          - handleQuickEvent(btn): 处理快捷事件按钮点击
+          - confirmEvent(eventData): 确认并保存事件
+          - showPreview(result): 显示 AI 分析结果预览
+          - 等级名称变化概率逻辑：
+            概率 = 本次增加分数 / 距离下一阶段所需分数
+            阶段4固定60%概率
+
+       7. achievements.js — 成就模块
+          - initAchievements(): 初始化成就页面
+          - renderAchievements(): 渲染成就墙
+          - 预设成就池（AI 不可用时的后备）
+
+       8. report.js — 周报模块
+          - initReport(): 初始化周报页面
+          - generateReport(weekStart, weekEnd): 生成周报数据
+          - renderReport(reportData): 渲染周报内容
+          - exportAsImage(): 使用 html2canvas 导出
+          - populateWeekSelector(): 填充历史周选择器
+
+       9. settings.js — 设置模块
+          - initSettings(): 初始化设置页面
+          - loadSettings(): 从 store 加载配置到表单
+          - saveAIConfig(): 保存 AI 配置
+          - savePrompts(): 保存提示词
+          - resetPrompt(promptKey): 恢复默认提示词
+          - handleExport(): 导出数据
+          - handleImport(): 导入数据
+          - handleClear(): 清空数据(二次确认)
+          - testConnection(): 测试 AI 连接
+
+       10. app.js — 应用入口
+           - DOMContentLoaded 事件中初始化所有模块
+           - 路由管理：监听 hashchange 和侧边栏点击
+           - navigateTo(pageName): 切换页面显示
+           - showToast(message, type): 显示通知
+           - showModal(title, bodyHTML, buttons): 显示模态框
+           - hideModal(): 隐藏模态框
+       ============================================================ -->
+  <script src="js/utils.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/record.js"></script>
+  <script src="js/achievements.js"></script>
+  <script src="js/report.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
