@@ -1,0 +1,609 @@
+/* ============================================================
+   ABSURDITY INDEX // 荒谬指数 — Dashboard Module Styles
+   
+   Dashboard-specific styles for the main overview page:
+   - Dashboard grid layout refinements
+   - Total score display with neon glow + pulse
+   - Current level card with title and progress
+   - Weekly trend chart container
+   - Recent events list with level-colored borders
+   - Empty states
+   - Dashboard entrance animations
+   
+   Depends on: index.css (tokens), layout.css (grid, base),
+               components.css (card, progress-bar, event-item)
+   ============================================================ */
+
+
+/* ============================================================
+   1. DASHBOARD PAGE
+   ============================================================ */
+
+#page-dashboard {
+  padding-bottom: var(--space-16);
+}
+
+
+/* ============================================================
+   2. DASHBOARD GRID
+   ============================================================ */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6);
+}
+
+/* Full-width cards span both columns */
+.dashboard__total-score,
+.dashboard__recent-events {
+  grid-column: 1 / -1;
+}
+
+/* Staggered entrance animation for grid children */
+.dashboard-grid > * {
+  opacity: 0;
+  transform: translateY(var(--space-4));
+  animation: dashboard-card-enter 0.5s var(--ease-out) forwards;
+}
+
+.dashboard-grid > *:nth-child(1) { animation-delay: 0ms; }
+.dashboard-grid > *:nth-child(2) { animation-delay: 80ms; }
+.dashboard-grid > *:nth-child(3) { animation-delay: 160ms; }
+.dashboard-grid > *:nth-child(4) { animation-delay: 240ms; }
+
+@keyframes dashboard-card-enter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* ============================================================
+   3. TOTAL SCORE CARD
+   ============================================================ */
+
+.dashboard__total-score {
+  background: linear-gradient(
+    135deg,
+    var(--bg-card) 0%,
+    rgba(57, 255, 20, 0.03) 50%,
+    var(--bg-card) 100%
+  );
+  border-color: rgba(57, 255, 20, 0.2);
+}
+
+.dashboard__total-score .card__body {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-6);
+  position: relative;
+}
+
+/* Ambient glow behind the score */
+.dashboard__total-score .card__body::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: 80%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(57, 255, 20, 0.06) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Score display: 4rem Orbitron with neon green glow */
+.score-display {
+  font-family: var(--font-display);
+  font-size: var(--text-6xl);
+  font-weight: var(--font-black);
+  letter-spacing: var(--tracking-wide);
+  color: var(--accent-green);
+  line-height: var(--leading-none);
+  display: inline-block;
+  position: relative;
+  z-index: 1;
+  transition: all var(--transition-base);
+  text-shadow:
+    0 0 5px rgba(57, 255, 20, 0.8),
+    0 0 10px rgba(57, 255, 20, 0.6),
+    0 0 20px rgba(57, 255, 20, 0.4),
+    0 0 40px rgba(57, 255, 20, 0.2),
+    0 0 80px rgba(57, 255, 20, 0.1);
+  animation: score-glow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes score-glow-pulse {
+  0%, 100% {
+    text-shadow:
+      0 0 5px rgba(57, 255, 20, 0.8),
+      0 0 10px rgba(57, 255, 20, 0.6),
+      0 0 20px rgba(57, 255, 20, 0.4),
+      0 0 40px rgba(57, 255, 20, 0.2),
+      0 0 80px rgba(57, 255, 20, 0.1);
+  }
+  50% {
+    text-shadow:
+      0 0 8px rgba(57, 255, 20, 1),
+      0 0 16px rgba(57, 255, 20, 0.8),
+      0 0 32px rgba(57, 255, 20, 0.6),
+      0 0 64px rgba(57, 255, 20, 0.3),
+      0 0 100px rgba(57, 255, 20, 0.15);
+  }
+}
+
+/* Score value transition for number changes */
+.score-display--updating {
+  animation: score-update-flash 0.6s ease-out;
+}
+
+@keyframes score-update-flash {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  30% {
+    transform: scale(1.08);
+    filter: brightness(1.5);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+.score-unit {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  letter-spacing: var(--tracking-widest);
+  position: relative;
+  z-index: 1;
+}
+
+
+/* ============================================================
+   4. CURRENT LEVEL CARD
+   ============================================================ */
+
+.dashboard__current-level {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard__current-level .card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  flex: 1;
+}
+
+/* Level title — Purple color */
+.level-title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--accent-purple);
+  text-shadow:
+    0 0 5px rgba(191, 64, 191, 0.5),
+    0 0 10px rgba(191, 64, 191, 0.3),
+    0 0 20px rgba(191, 64, 191, 0.15);
+  letter-spacing: var(--tracking-wider);
+  margin-bottom: var(--space-2);
+  line-height: var(--leading-tight);
+}
+
+/* Stage badge positioning */
+.dashboard__current-level .card__header {
+  gap: var(--space-3);
+}
+
+/* Progress bar refinement for dashboard */
+.dashboard__current-level .progress-bar {
+  height: 10px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dashboard__current-level .progress-bar__fill {
+  background: linear-gradient(
+    90deg,
+    var(--accent-green) 0%,
+    var(--accent-blue) 100%
+  );
+  box-shadow:
+    0 0 8px rgba(57, 255, 20, 0.3),
+    0 0 16px rgba(0, 212, 255, 0.15);
+}
+
+/* Progress text */
+.dashboard__current-level .progress-text {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  letter-spacing: var(--tracking-wide);
+  margin: 0;
+}
+
+
+/* ============================================================
+   5. WEEKLY TREND CHART CONTAINER
+   ============================================================ */
+
+.dashboard__weekly-trend .card__body {
+  padding: var(--space-4);
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Chart canvas wrapper */
+.dashboard__weekly-trend canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 200px;
+}
+
+/* Empty state for chart */
+.dashboard__weekly-trend .chart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  width: 100%;
+}
+
+.dashboard__weekly-trend .chart-empty__icon {
+  font-size: var(--text-4xl);
+  opacity: 0.4;
+}
+
+.dashboard__weekly-trend .chart-empty__text {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  letter-spacing: var(--tracking-wide);
+  margin: 0;
+}
+
+
+/* ============================================================
+   6. RECENT EVENTS LIST
+   ============================================================ */
+
+.dashboard__recent-events .card__body {
+  padding: var(--space-2) var(--space-6) var(--space-6);
+}
+
+/* Event list container */
+.dashboard__recent-events .event-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* Event items with level-colored left borders */
+.dashboard__recent-events .event-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-left: 3px solid transparent;
+  background-color: rgba(255, 255, 255, 0.02);
+  transition: all var(--transition-fast);
+}
+
+.dashboard__recent-events .event-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: translateX(2px);
+}
+
+/* Level-specific left border colors */
+.dashboard__recent-events .event-item--basic {
+  border-left-color: var(--level-basic);
+}
+
+.dashboard__recent-events .event-item--combo {
+  border-left-color: var(--level-combo);
+}
+
+.dashboard__recent-events .event-item--rare {
+  border-left-color: var(--level-rare);
+}
+
+.dashboard__recent-events .event-item--epic {
+  border-left-color: var(--level-epic);
+}
+
+/* Event item icon */
+.dashboard__recent-events .event-item__icon {
+  font-size: var(--text-xl);
+  flex-shrink: 0;
+  width: var(--space-8);
+  text-align: center;
+}
+
+/* Event item info */
+.dashboard__recent-events .event-item__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.dashboard__recent-events .event-item__title {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.dashboard__recent-events .event-item__time {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* Event score display */
+.dashboard__recent-events .event-item__score {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  color: var(--accent-green);
+  text-shadow: 0 0 6px rgba(57, 255, 20, 0.3);
+  flex-shrink: 0;
+  letter-spacing: var(--tracking-wide);
+}
+
+/* Level-specific score colors */
+.dashboard__recent-events .event-item--combo .event-item__score {
+  color: var(--level-combo);
+  text-shadow: 0 0 6px rgba(0, 212, 255, 0.3);
+}
+
+.dashboard__recent-events .event-item--rare .event-item__score {
+  color: var(--level-rare);
+  text-shadow: 0 0 6px rgba(191, 64, 191, 0.3);
+}
+
+.dashboard__recent-events .event-item--epic .event-item__score {
+  color: var(--level-epic);
+  text-shadow: 0 0 6px rgba(255, 215, 0, 0.3);
+}
+
+/* Epic events get a subtle background highlight */
+.dashboard__recent-events .event-item--epic {
+  background-color: rgba(255, 215, 0, 0.03);
+  border-color: rgba(255, 215, 0, 0.08);
+  border-left-color: var(--level-epic);
+}
+
+.dashboard__recent-events .event-item--epic:hover {
+  background-color: rgba(255, 215, 0, 0.06);
+  border-color: rgba(255, 215, 0, 0.15);
+}
+
+
+/* ============================================================
+   7. EMPTY STATES
+   ============================================================ */
+
+/* Dashboard empty states - centered with icon */
+.event-list__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-12) var(--space-6);
+  text-align: center;
+}
+
+.event-list__empty .empty-icon {
+  font-size: var(--text-5xl);
+  margin-bottom: var(--space-4);
+  opacity: 0.4;
+  animation: empty-breathe 4s ease-in-out infinite;
+}
+
+@keyframes empty-breathe {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.05); }
+}
+
+.event-list__empty p {
+  color: var(--text-secondary);
+  font-size: var(--text-base);
+  margin-bottom: var(--space-2);
+}
+
+.event-list__empty .text-secondary {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-family: var(--font-mono);
+  letter-spacing: var(--tracking-wide);
+  margin: 0;
+}
+
+
+/* ============================================================
+   8. DASHBOARD CARD HOVER ENHANCEMENTS
+   ============================================================ */
+
+/* Score card: stronger glow on hover */
+.dashboard__total-score:hover {
+  border-color: rgba(57, 255, 20, 0.35);
+  box-shadow:
+    0 0 20px rgba(57, 255, 20, 0.08),
+    0 0 40px rgba(57, 255, 20, 0.04),
+    0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Level card: purple glow on hover */
+.dashboard__current-level:hover {
+  border-color: rgba(191, 64, 191, 0.2);
+  box-shadow:
+    0 0 15px rgba(191, 64, 191, 0.06),
+    0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Trend card: blue glow on hover */
+.dashboard__weekly-trend:hover {
+  border-color: rgba(0, 212, 255, 0.2);
+  box-shadow:
+    0 0 15px rgba(0, 212, 255, 0.06),
+    0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+
+/* ============================================================
+   9. RESPONSIVE: TABLET (768px - 1024px)
+   ============================================================ */
+
+@media screen and (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard__total-score .card__body {
+    padding: var(--space-6);
+    justify-content: center;
+  }
+
+  .dashboard__current-level .card__body {
+    padding: var(--space-4) var(--space-6) var(--space-6);
+  }
+
+  .dashboard__weekly-trend .card__body {
+    min-height: 160px;
+  }
+}
+
+
+/* ============================================================
+   10. RESPONSIVE: MOBILE (< 768px)
+   ============================================================ */
+
+@media screen and (max-width: 768px) {
+  .score-display {
+    font-size: var(--text-4xl);
+  }
+
+  .score-unit {
+    font-size: var(--text-base);
+  }
+
+  .dashboard__total-score .card__body {
+    padding: var(--space-4) var(--space-4);
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .level-title {
+    font-size: var(--text-xl);
+    text-align: center;
+  }
+
+  .dashboard__current-level .card__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .dashboard__recent-events .card__body {
+    padding: var(--space-2) var(--space-4) var(--space-4);
+  }
+
+  .dashboard__recent-events .event-item {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .dashboard__recent-events .event-item__icon {
+    width: var(--space-6);
+    font-size: var(--text-lg);
+  }
+
+  .dashboard__weekly-trend .card__body {
+    min-height: 140px;
+    padding: var(--space-3);
+  }
+}
+
+
+/* ============================================================
+   11. RESPONSIVE: VERY SMALL (< 480px)
+   ============================================================ */
+
+@media screen and (max-width: 480px) {
+  .score-display {
+    font-size: var(--text-3xl);
+  }
+
+  .score-unit {
+    font-size: var(--text-sm);
+  }
+
+  .level-title {
+    font-size: var(--text-lg);
+  }
+
+  .dashboard__recent-events .event-item__title {
+    font-size: var(--text-xs);
+  }
+
+  .dashboard__recent-events .event-item__score {
+    font-size: var(--text-xs);
+  }
+}
+
+
+/* ============================================================
+   12. HIGH CONTRAST / ACCESSIBILITY
+   ============================================================ */
+
+@media (prefers-contrast: high) {
+  .dashboard__total-score {
+    border-color: var(--accent-green);
+  }
+
+  .dashboard__current-level {
+    border-color: var(--accent-purple);
+  }
+
+  .dashboard__recent-events .event-item {
+    border-left-width: 4px;
+  }
+
+  .score-display {
+    text-shadow: none;
+    -webkit-text-stroke: 1px var(--accent-green);
+  }
+
+  .level-title {
+    text-shadow: none;
+    -webkit-text-stroke: 1px var(--accent-purple);
+  }
+}
+
+
+/* ============================================================
+   END OF DASHBOARD STYLES
+   ============================================================ */

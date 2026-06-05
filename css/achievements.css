@@ -1,0 +1,677 @@
+/* ============================================================
+   ABSURDITY INDEX // 荒谬指数 — Achievements Module Styles
+   
+   Achievement hall page-specific styles:
+   - Achievements grid layout (auto-fill responsive)
+   - Achievement stats counter display
+   - Rarity-specific card enhancements (common, rare, epic, legendary)
+   - Locked achievement state (grayscale, lock icon overlay)
+   - Rarity glow breathing animations
+   - Legendary rainbow gradient border animation
+   - Empty state display
+   - Staggered entrance animations
+   - Responsive breakpoints
+   
+   Depends on: index.css (tokens), layout.css (structure),
+               components.css (card, badge, achievement-card base)
+   ============================================================ */
+
+
+/* ============================================================
+   1. ACHIEVEMENTS PAGE
+   ============================================================ */
+
+#page-achievements {
+  padding-bottom: var(--space-16);
+}
+
+
+/* ============================================================
+   2. ACHIEVEMENTS STATS COUNTER
+   ============================================================ */
+
+.achievements-stats {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+  padding: var(--space-5) var(--space-6);
+  background-color: var(--bg-card);
+  border: 1px solid rgba(191, 64, 191, 0.12);
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle purple ambient glow behind stats */
+.achievements-stats::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 30%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(191, 64, 191, 0.06) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Top accent line */
+.achievements-stats::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(191, 64, 191, 0.4),
+    transparent
+  );
+  z-index: 1;
+}
+
+/* Large number display */
+.achievements-stats__count {
+  font-family: var(--font-display);
+  font-size: var(--text-5xl);
+  font-weight: var(--font-black);
+  color: var(--accent-purple);
+  line-height: var(--leading-none);
+  letter-spacing: var(--tracking-wide);
+  position: relative;
+  z-index: 1;
+  text-shadow:
+    0 0 5px rgba(191, 64, 191, 0.8),
+    0 0 10px rgba(191, 64, 191, 0.6),
+    0 0 20px rgba(191, 64, 191, 0.4),
+    0 0 40px rgba(191, 64, 191, 0.2);
+  min-width: 3ch;
+  text-align: center;
+}
+
+/* Count pulse on value change */
+.achievements-stats__count--updating {
+  animation: achievement-count-flash 0.6s ease-out;
+}
+
+@keyframes achievement-count-flash {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  30% {
+    transform: scale(1.12);
+    filter: brightness(1.6);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+/* Label text */
+.achievements-stats__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  color: var(--text-secondary);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+
+/* ============================================================
+   3. ACHIEVEMENTS GRID
+   ============================================================ */
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-6);
+}
+
+/* Staggered entrance animation */
+.achievements-grid > .achievement-card {
+  opacity: 0;
+  transform: translateY(var(--space-4)) scale(0.96);
+  animation: achievement-card-enter 0.4s var(--ease-out) forwards;
+}
+
+/* Stagger up to 12 cards, then reset */
+.achievements-grid > .achievement-card:nth-child(1)  { animation-delay: 0ms; }
+.achievements-grid > .achievement-card:nth-child(2)  { animation-delay: 50ms; }
+.achievements-grid > .achievement-card:nth-child(3)  { animation-delay: 100ms; }
+.achievements-grid > .achievement-card:nth-child(4)  { animation-delay: 150ms; }
+.achievements-grid > .achievement-card:nth-child(5)  { animation-delay: 200ms; }
+.achievements-grid > .achievement-card:nth-child(6)  { animation-delay: 250ms; }
+.achievements-grid > .achievement-card:nth-child(7)  { animation-delay: 300ms; }
+.achievements-grid > .achievement-card:nth-child(8)  { animation-delay: 350ms; }
+.achievements-grid > .achievement-card:nth-child(9)  { animation-delay: 400ms; }
+.achievements-grid > .achievement-card:nth-child(10) { animation-delay: 450ms; }
+.achievements-grid > .achievement-card:nth-child(11) { animation-delay: 500ms; }
+.achievements-grid > .achievement-card:nth-child(12) { animation-delay: 550ms; }
+
+/* Locked cards enter without scale effect */
+.achievements-grid > .achievement-card--locked {
+  animation-name: achievement-card-enter-locked;
+}
+
+@keyframes achievement-card-enter {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes achievement-card-enter-locked {
+  to {
+    opacity: 0.5;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/* ============================================================
+   4. ACHIEVEMENT CARD — RARITY ENHANCEMENTS
+   ============================================================
+
+   Base card styling lives in components.css.
+   This section adds rarity-specific glow effects, 
+   breathing animations, and hover enhancements.
+   ============================================================ */
+
+/* --------------------------------------------------------
+   COMMON — Clean, minimal border
+   -------------------------------------------------------- */
+.achievement-card--common {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(
+    160deg,
+    var(--bg-card) 0%,
+    rgba(255, 255, 255, 0.015) 100%
+  );
+}
+
+.achievement-card--common:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow:
+    0 0 12px rgba(255, 255, 255, 0.03),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Common rarity badge */
+.achievement-card--common .achievement-card__rarity-badge {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------
+   RARE — Purple glow with breathing pulse
+   -------------------------------------------------------- */
+.achievement-card--rare {
+  border-color: rgba(191, 64, 191, 0.25);
+  background: linear-gradient(
+    160deg,
+    var(--bg-card) 0%,
+    rgba(191, 64, 191, 0.03) 100%
+  );
+  animation: rare-glow-breathe 3s ease-in-out infinite;
+}
+
+@keyframes rare-glow-breathe {
+  0%, 100% {
+    box-shadow:
+      0 0 6px rgba(191, 64, 191, 0.06),
+      0 0 12px rgba(191, 64, 191, 0.03);
+  }
+  50% {
+    box-shadow:
+      0 0 10px rgba(191, 64, 191, 0.12),
+      0 0 20px rgba(191, 64, 191, 0.06),
+      0 0 40px rgba(191, 64, 191, 0.03);
+  }
+}
+
+.achievement-card--rare:hover {
+  border-color: rgba(191, 64, 191, 0.5);
+  box-shadow:
+    0 0 20px rgba(191, 64, 191, 0.18),
+    0 0 40px rgba(191, 64, 191, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+  animation: none;
+}
+
+/* Rare emoji shimmer */
+.achievement-card--rare .achievement-card__emoji {
+  filter: drop-shadow(0 0 6px rgba(191, 64, 191, 0.4));
+}
+
+/* --------------------------------------------------------
+   EPIC — Gold glow with breathing pulse
+   -------------------------------------------------------- */
+.achievement-card--epic {
+  border-color: rgba(255, 215, 0, 0.25);
+  background: linear-gradient(
+    160deg,
+    var(--bg-card) 0%,
+    rgba(255, 215, 0, 0.03) 100%
+  );
+  animation: epic-glow-breathe 3s ease-in-out infinite;
+}
+
+@keyframes epic-glow-breathe {
+  0%, 100% {
+    box-shadow:
+      0 0 6px rgba(255, 215, 0, 0.06),
+      0 0 12px rgba(255, 215, 0, 0.03);
+  }
+  50% {
+    box-shadow:
+      0 0 10px rgba(255, 215, 0, 0.12),
+      0 0 20px rgba(255, 215, 0, 0.06),
+      0 0 40px rgba(255, 215, 0, 0.03);
+  }
+}
+
+.achievement-card--epic:hover {
+  border-color: rgba(255, 215, 0, 0.5);
+  box-shadow:
+    0 0 20px rgba(255, 215, 0, 0.18),
+    0 0 40px rgba(255, 215, 0, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+  animation: none;
+}
+
+/* Epic emoji shimmer */
+.achievement-card--epic .achievement-card__emoji {
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
+}
+
+/* Epic name gets gold neon glow */
+.achievement-card--epic .achievement-card__name {
+  color: var(--accent-gold);
+  text-shadow:
+    0 0 4px rgba(255, 215, 0, 0.5),
+    0 0 8px rgba(255, 215, 0, 0.3);
+}
+
+/* --------------------------------------------------------
+   LEGENDARY — Rainbow gradient border animation
+   -------------------------------------------------------- */
+.achievement-card--legendary {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+    linear-gradient(
+      var(--legendary-angle, 135deg),
+      var(--accent-green),
+      var(--accent-blue),
+      var(--accent-purple),
+      var(--accent-gold),
+      var(--accent-green)
+    ) border-box;
+  animation: legendary-rotate 4s linear infinite,
+             legendary-glow-breathe 3s ease-in-out infinite;
+}
+
+/* Rotating gradient angle for the border */
+@property --legendary-angle {
+  syntax: '<angle>';
+  initial-value: 135deg;
+  inherits: false;
+}
+
+@keyframes legendary-rotate {
+  to {
+    --legendary-angle: 495deg;
+  }
+}
+
+@keyframes legendary-glow-breathe {
+  0%, 100% {
+    box-shadow:
+      0 0 10px rgba(57, 255, 20, 0.08),
+      0 0 10px rgba(0, 212, 255, 0.08),
+      0 0 10px rgba(191, 64, 191, 0.08);
+  }
+  50% {
+    box-shadow:
+      0 0 18px rgba(57, 255, 20, 0.16),
+      0 0 18px rgba(0, 212, 255, 0.16),
+      0 0 18px rgba(191, 64, 191, 0.16),
+      0 0 36px rgba(255, 215, 0, 0.06);
+  }
+}
+
+.achievement-card--legendary:hover {
+  box-shadow:
+    0 0 25px rgba(57, 255, 20, 0.2),
+    0 0 25px rgba(0, 212, 255, 0.2),
+    0 0 25px rgba(191, 64, 191, 0.2),
+    0 0 50px rgba(255, 215, 0, 0.1),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+  animation: none;
+}
+
+/* Legendary rarity badge — gradient text */
+.achievement-card--legendary .achievement-card__rarity-badge {
+  background: linear-gradient(
+    135deg,
+    var(--accent-green),
+    var(--accent-blue),
+    var(--accent-purple)
+  );
+  color: var(--text-inverse);
+  font-weight: var(--font-black);
+}
+
+/* Legendary emoji — prismatic glow */
+.achievement-card--legendary .achievement-card__emoji {
+  filter: drop-shadow(0 0 10px rgba(57, 255, 20, 0.4))
+          drop-shadow(0 0 10px rgba(0, 212, 255, 0.4));
+}
+
+/* Legendary name — rainbow shimmer */
+.achievement-card--legendary .achievement-card__name {
+  background: linear-gradient(
+    90deg,
+    var(--accent-green),
+    var(--accent-blue),
+    var(--accent-purple),
+    var(--accent-gold)
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: legendary-text-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes legendary-text-shimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Legendary description — subtle tint */
+.achievement-card--legendary .achievement-card__desc {
+  color: rgba(191, 64, 191, 0.7);
+}
+
+
+/* ============================================================
+   5. LOCKED ACHIEVEMENT STATE
+   ============================================================ */
+
+.achievement-card--locked {
+  opacity: 0.45;
+  filter: grayscale(0.85) brightness(0.8);
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Disable all rarity animations on locked cards */
+.achievement-card--locked.achievement-card--rare,
+.achievement-card--locked.achievement-card--epic,
+.achievement-card--locked.achievement-card--legendary {
+  animation: none;
+  box-shadow: none;
+}
+
+/* Reset legendary border to flat gray when locked */
+.achievement-card--locked.achievement-card--legendary {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Locked hover — no lift, no glow */
+.achievement-card--locked:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: rgba(255, 255, 255, 0.08);
+  filter: grayscale(0.85) brightness(0.8);
+}
+
+/* Lock icon overlay — positioned over the emoji */
+.achievement-card--locked .achievement-card__emoji {
+  position: relative;
+}
+
+.achievement-card--locked .achievement-card__emoji::after {
+  content: '🔒';
+  position: absolute;
+  bottom: -6px;
+  right: -6px;
+  font-size: var(--text-2xl);
+  filter: none;
+  opacity: 0.8;
+  z-index: 2;
+}
+
+/* Diagonal "CLASSIFIED" stripe across locked cards */
+.achievement-card--locked::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 8px,
+    rgba(255, 255, 255, 0.015) 8px,
+    rgba(255, 255, 255, 0.015) 9px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Dimmed name for locked */
+.achievement-card--locked .achievement-card__name {
+  color: var(--text-muted);
+  text-shadow: none;
+}
+
+/* Dimmed description for locked */
+.achievement-card--locked .achievement-card__desc {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.achievement-card--locked.achievement-card--legendary .achievement-card__name {
+  -webkit-text-fill-color: var(--text-muted);
+  background: none;
+  animation: none;
+}
+
+
+/* ============================================================
+   6. EMPTY STATE
+   ============================================================ */
+
+.achievements-grid__empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-20) var(--space-6);
+  text-align: center;
+}
+
+.achievements-grid__empty .empty-icon {
+  font-size: var(--text-5xl);
+  margin-bottom: var(--space-4);
+  opacity: 0.35;
+  animation: achievement-empty-breathe 4s ease-in-out infinite;
+}
+
+@keyframes achievement-empty-breathe {
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(1.08);
+  }
+}
+
+.achievements-grid__empty p {
+  color: var(--text-secondary);
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-2);
+}
+
+.achievements-grid__empty .text-secondary {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-family: var(--font-mono);
+  letter-spacing: var(--tracking-wide);
+  margin: 0;
+}
+
+
+/* ============================================================
+   7. RESPONSIVE: TABLET (768px - 1024px)
+   ============================================================ */
+
+@media screen and (max-width: 1024px) {
+  .achievements-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .achievements-stats__count {
+    font-size: var(--text-4xl);
+  }
+}
+
+
+/* ============================================================
+   8. RESPONSIVE: MOBILE (< 768px)
+   ============================================================ */
+
+@media screen and (max-width: 768px) {
+  .achievements-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: var(--space-3);
+  }
+
+  .achievements-stats {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-4);
+  }
+
+  .achievements-stats__count {
+    font-size: var(--text-3xl);
+  }
+
+  .achievement-card {
+    padding: var(--space-4);
+  }
+
+  .achievement-card__emoji {
+    font-size: var(--text-3xl);
+  }
+
+  .achievement-card__name {
+    font-size: var(--text-xs);
+  }
+
+  .achievement-card__rarity-badge {
+    font-size: 0.5625rem;
+    padding: 2px var(--space-1);
+  }
+
+  .achievements-grid__empty {
+    padding: var(--space-12) var(--space-4);
+  }
+}
+
+
+/* ============================================================
+   9. RESPONSIVE: VERY SMALL (< 480px)
+   ============================================================ */
+
+@media screen and (max-width: 480px) {
+  .achievements-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+
+  .achievements-stats__count {
+    font-size: var(--text-2xl);
+  }
+
+  .achievements-stats__label {
+    font-size: var(--text-xs);
+  }
+
+  .achievement-card__desc {
+    display: none;
+  }
+
+  .achievement-card__time {
+    font-size: 0.5rem;
+  }
+}
+
+
+/* ============================================================
+   10. HIGH CONTRAST / ACCESSIBILITY
+   ============================================================ */
+
+@media (prefers-contrast: high) {
+  .achievement-card--common {
+    border-color: var(--text-secondary);
+  }
+
+  .achievement-card--rare {
+    border-color: var(--accent-purple);
+    animation: none;
+  }
+
+  .achievement-card--epic {
+    border-color: var(--accent-gold);
+    animation: none;
+  }
+
+  .achievement-card--legendary {
+    border: 2px solid var(--accent-green);
+    animation: none;
+  }
+
+  .achievement-card--locked {
+    opacity: 0.6;
+    filter: grayscale(1);
+  }
+
+  .achievement-card--locked .achievement-card__emoji::after {
+    opacity: 1;
+  }
+
+  .achievements-stats__count {
+    text-shadow: none;
+    -webkit-text-stroke: 1px var(--accent-purple);
+  }
+}
+
+
+/* ============================================================
+   END OF ACHIEVEMENTS STYLES
+   ============================================================ */

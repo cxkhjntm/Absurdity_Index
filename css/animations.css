@@ -1,0 +1,1186 @@
+/* ============================================================
+   ABSURDITY INDEX // 荒谬指数 — Animation Library
+   
+   Comprehensive animation system for the cyberpunk UI.
+   This file extends base keyframes from index.css with:
+   
+   1. Enhanced Scanline Overlay — animated bar sweeping + noise grain
+   2. Glitch Text Effects — continuous, burst, chromatic aberration
+   3. Pulse Glow — multi-color, multi-intensity breathing effects
+   4. Progress Shine — gradient sweep on progress bars
+   5. Slide-in / Entrance Animations — all directions + stagger
+   6. Score / Number Animations — count-up flash, digit roll
+   7. Achievement Unlock — sequential reveal sequence
+   8. Page Transition — module switch crossfade
+   9. Noise / Grain Overlay — atmospheric texture
+   10. Animated Gradient Border — rotating hue cycle
+   11. Typing / Cursor — AI typing indicator
+   12. Shake / Impact — error/rejection feedback
+   
+   Depends on: index.css (design tokens, base keyframes),
+               components.css (component structure)
+   
+   Keyframes ALREADY defined in index.css (DO NOT redefine):
+     glitch-1, glitch-2, breathing, breathing-purple,
+     breathing-blue, breathing-gold, text-breathing,
+     fadeIn, fadeInUp, fadeInDown, slideInLeft, slideInRight,
+     pulse, spin, shake
+   
+   Keyframes ALREADY defined in components.css (DO NOT redefine):
+     btn-glow-pulse, btn-spin, progress-shine,
+     toast-slide-in, toast-slide-out, toast-timer
+   ============================================================ */
+
+
+/* ============================================================
+   1. ENHANCED SCANLINE OVERLAY
+   --------------------------------------------------------
+   Two layers:
+   a) Static CRT scanlines (base .scanline-overlay in index.css)
+   b) Animated sweep bar — a brighter horizontal line that
+      moves down the screen like a CRT refresh.
+   
+   Usage: <div class="scanline-overlay scanline--animated">
+   ============================================================ */
+
+/* Animated sweep bar pseudo-element on the existing overlay */
+.scanline--animated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(57, 255, 20, 0.06) 40%,
+    rgba(57, 255, 20, 0.12) 50%,
+    rgba(57, 255, 20, 0.06) 60%,
+    transparent 100%
+  );
+  animation: scanline-sweep 8s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes scanline-sweep {
+  0% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+/* Thicker variant — more visible CRT bar */
+.scanline--thick::after {
+  height: 12px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(57, 255, 20, 0.03) 20%,
+    rgba(57, 255, 20, 0.08) 45%,
+    rgba(57, 255, 20, 0.15) 50%,
+    rgba(57, 255, 20, 0.08) 55%,
+    rgba(57, 255, 20, 0.03) 80%,
+    transparent 100%
+  );
+}
+
+/* Faster sweep for intense moments (e.g., epic event recording) */
+.scanline--fast::after {
+  animation-duration: 3s;
+}
+
+/* Slower ambient sweep */
+.scanline--slow::after {
+  animation-duration: 15s;
+}
+
+
+/* ============================================================
+   2. GLITCH TEXT EFFECTS
+   --------------------------------------------------------
+   Extended glitch system beyond the hover-only glitch in
+   index.css. Provides continuous and burst variants.
+   
+   Usage: <span class="glitch glitch--continuous" data-text="TEXT">
+   ============================================================ */
+
+/* --- Continuous Glitch (always running) --- */
+.glitch--continuous {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch--continuous::before,
+.glitch--continuous::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.glitch--continuous::before {
+  color: var(--accent-blue);
+  animation: glitch-continuous-1 4s infinite linear alternate-reverse;
+  clip-path: inset(0 0 65% 0);
+}
+
+.glitch--continuous::after {
+  color: var(--accent-purple);
+  animation: glitch-continuous-2 4s infinite linear alternate-reverse;
+  clip-path: inset(60% 0 0 0);
+}
+
+@keyframes glitch-continuous-1 {
+  0%   { clip-path: inset(40% 0 20% 0); transform: translate(-2px, -1px); }
+  5%   { clip-path: inset(10% 0 65% 0); transform: translate(2px, 1px); }
+  10%  { clip-path: inset(80% 0 5% 0);  transform: translate(-1px, 2px); }
+  15%  { clip-path: inset(0 0 80% 0);   transform: translate(0); }
+  20%  { clip-path: inset(25% 0 40% 0); transform: translate(3px, -2px); }
+  25%  { clip-path: inset(0 0 0 0);     transform: translate(0); opacity: 0; }
+  30%  { clip-path: inset(60% 0 10% 0); transform: translate(-3px, 1px); opacity: 1; }
+  35%  { clip-path: inset(5% 0 70% 0);  transform: translate(2px, -1px); }
+  40%  { clip-path: inset(50% 0 15% 0); transform: translate(-1px, 3px); }
+  45%  { clip-path: inset(0 0 0 0);     transform: translate(0); opacity: 0; }
+  50%  { clip-path: inset(30% 0 35% 0); transform: translate(1px, -2px); opacity: 1; }
+  55%  { clip-path: inset(70% 0 5% 0);  transform: translate(-2px, 0); }
+  60%  { clip-path: inset(15% 0 55% 0); transform: translate(3px, 2px); }
+  65%  { clip-path: inset(0 0 0 0);     transform: translate(0); opacity: 0; }
+  70%  { clip-path: inset(45% 0 25% 0); transform: translate(-1px, -3px); opacity: 1; }
+  75%  { clip-path: inset(85% 0 0% 0);  transform: translate(2px, 1px); }
+  80%  { clip-path: inset(0 0 60% 0);   transform: translate(-3px, -1px); }
+  85%  { clip-path: inset(35% 0 30% 0); transform: translate(0); opacity: 0; }
+  90%  { clip-path: inset(55% 0 10% 0); transform: translate(1px, 2px); opacity: 1; }
+  95%  { clip-path: inset(20% 0 45% 0); transform: translate(-2px, -2px); }
+  100% { clip-path: inset(0 0 80% 0);   transform: translate(2px, 0); }
+}
+
+@keyframes glitch-continuous-2 {
+  0%   { clip-path: inset(60% 0 10% 0); transform: translate(2px, 1px); }
+  5%   { clip-path: inset(0 0 70% 0);   transform: translate(-1px, -2px); }
+  10%  { clip-path: inset(30% 0 30% 0); transform: translate(3px, 0); }
+  15%  { clip-path: inset(80% 0 0% 0);  transform: translate(0); opacity: 0; }
+  20%  { clip-path: inset(10% 0 55% 0); transform: translate(-3px, 2px); opacity: 1; }
+  25%  { clip-path: inset(45% 0 20% 0); transform: translate(1px, -1px); }
+  30%  { clip-path: inset(0 0 0 0);     transform: translate(0); opacity: 0; }
+  35%  { clip-path: inset(70% 0 5% 0);  transform: translate(2px, 3px); opacity: 1; }
+  40%  { clip-path: inset(20% 0 45% 0); transform: translate(-2px, -1px); }
+  45%  { clip-path: inset(55% 0 15% 0); transform: translate(3px, -2px); }
+  50%  { clip-path: inset(0 0 85% 0);   transform: translate(0); opacity: 0; }
+  55%  { clip-path: inset(35% 0 25% 0); transform: translate(-1px, 1px); opacity: 1; }
+  60%  { clip-path: inset(90% 0 0% 0);  transform: translate(2px, -3px); }
+  65%  { clip-path: inset(15% 0 50% 0); transform: translate(-3px, 2px); }
+  70%  { clip-path: inset(0 0 0 0);     transform: translate(0); opacity: 0; }
+  75%  { clip-path: inset(60% 0 10% 0); transform: translate(1px, -1px); opacity: 1; }
+  80%  { clip-path: inset(5% 0 75% 0);  transform: translate(-2px, 3px); }
+  85%  { clip-path: inset(40% 0 20% 0); transform: translate(3px, 0); }
+  90%  { clip-path: inset(0 0 60% 0);   transform: translate(-1px, -2px); }
+  95%  { clip-path: inset(75% 0 0% 0);  transform: translate(0); opacity: 0; }
+  100% { clip-path: inset(25% 0 40% 0); transform: translate(2px, 1px); opacity: 1; }
+}
+
+
+/* --- Burst Glitch (triggered via class toggle) --- */
+.glitch--burst {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch--burst.is-glitching::before,
+.glitch--burst.is-glitching::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch--burst.is-glitching::before {
+  color: var(--accent-blue);
+  animation: glitch-burst-1 0.4s steps(2) forwards;
+  clip-path: inset(0 0 50% 0);
+}
+
+.glitch--burst.is-glitching::after {
+  color: var(--accent-purple);
+  animation: glitch-burst-2 0.4s steps(2) forwards;
+  clip-path: inset(50% 0 0 0);
+}
+
+@keyframes glitch-burst-1 {
+  0%   { transform: translate(0); clip-path: inset(0 0 50% 0); }
+  10%  { transform: translate(-5px, 3px); clip-path: inset(20% 0 30% 0); }
+  20%  { transform: translate(5px, -3px); clip-path: inset(60% 0 10% 0); }
+  30%  { transform: translate(-8px, 0); clip-path: inset(10% 0 60% 0); }
+  40%  { transform: translate(3px, 5px); clip-path: inset(40% 0 20% 0); }
+  50%  { transform: translate(-3px, -5px); clip-path: inset(0 0 80% 0); }
+  60%  { transform: translate(8px, 2px); clip-path: inset(70% 0 5% 0); }
+  70%  { transform: translate(-2px, -2px); clip-path: inset(15% 0 50% 0); }
+  80%  { transform: translate(4px, 0); clip-path: inset(50% 0 15% 0); }
+  90%  { transform: translate(-4px, 3px); clip-path: inset(5% 0 70% 0); }
+  100% { transform: translate(0); clip-path: inset(0 0 50% 0); }
+}
+
+@keyframes glitch-burst-2 {
+  0%   { transform: translate(0); clip-path: inset(50% 0 0 0); }
+  10%  { transform: translate(5px, -3px); clip-path: inset(30% 0 20% 0); }
+  20%  { transform: translate(-5px, 3px); clip-path: inset(10% 0 60% 0); }
+  30%  { transform: translate(8px, 0); clip-path: inset(60% 0 10% 0); }
+  40%  { transform: translate(-3px, -5px); clip-path: inset(20% 0 40% 0); }
+  50%  { transform: translate(3px, 5px); clip-path: inset(80% 0 0 0); }
+  60%  { transform: translate(-8px, -2px); clip-path: inset(5% 0 70% 0); }
+  70%  { transform: translate(2px, 2px); clip-path: inset(50% 0 15% 0); }
+  80%  { transform: translate(-4px, 0); clip-path: inset(15% 0 50% 0); }
+  90%  { transform: translate(4px, -3px); clip-path: inset(70% 0 5% 0); }
+  100% { transform: translate(0); clip-path: inset(50% 0 0 0); }
+}
+
+
+/* --- Glitch Element (full element distortion) --- */
+.glitch--element {
+  position: relative;
+}
+
+.glitch--element::before,
+.glitch--element::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.glitch--element::before {
+  background: inherit;
+  animation: glitch-element-shift 6s infinite steps(1);
+  clip-path: inset(0 0 80% 0);
+  mix-blend-mode: screen;
+  opacity: 0;
+}
+
+@keyframes glitch-element-shift {
+  0%   { opacity: 0; transform: translate(0); }
+  2%   { opacity: 0.6; transform: translate(-4px, 2px); filter: hue-rotate(90deg); }
+  4%   { opacity: 0; transform: translate(0); }
+  41%  { opacity: 0; transform: translate(0); }
+  43%  { opacity: 0.4; transform: translate(3px, -3px); filter: hue-rotate(-90deg); }
+  44%  { opacity: 0; transform: translate(0); }
+  61%  { opacity: 0; transform: translate(0); }
+  62%  { opacity: 0.5; transform: translate(-2px, 4px); filter: hue-rotate(180deg); }
+  63%  { opacity: 0; transform: translate(0); }
+  100% { opacity: 0; transform: translate(0); }
+}
+
+
+/* ============================================================
+   3. PULSE GLOW ANIMATIONS
+   --------------------------------------------------------
+   Multi-color pulse glow effects for cards, borders, and
+   text. Different intensities for different contexts.
+   
+   Extends the breathing classes from index.css with more
+   intensity levels and combo effects.
+   ============================================================ */
+
+/* --- Pulse Glow: Intensity Levels --- */
+
+/* Subtle — ambient background glow */
+.pulse-glow--subtle {
+  animation: pulse-glow-subtle 4s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-subtle {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(57, 255, 20, 0.2),
+                0 0 10px rgba(57, 255, 20, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 8px rgba(57, 255, 20, 0.35),
+                0 0 16px rgba(57, 255, 20, 0.2),
+                0 0 24px rgba(57, 255, 20, 0.1);
+  }
+}
+
+/* Medium — standard neon pulse (similar to breathing, but faster) */
+.pulse-glow--medium {
+  animation: pulse-glow-medium 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-medium {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(57, 255, 20, 0.4),
+                0 0 16px rgba(57, 255, 20, 0.25),
+                0 0 24px rgba(57, 255, 20, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(57, 255, 20, 0.6),
+                0 0 24px rgba(57, 255, 20, 0.4),
+                0 0 40px rgba(57, 255, 20, 0.25),
+                0 0 60px rgba(57, 255, 20, 0.1);
+  }
+}
+
+/* Intense — epic events, level-up moments */
+.pulse-glow--intense {
+  animation: pulse-glow-intense 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-intense {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.6),
+                0 0 20px rgba(57, 255, 20, 0.4),
+                0 0 40px rgba(57, 255, 20, 0.2),
+                0 0 60px rgba(57, 255, 20, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(57, 255, 20, 0.8),
+                0 0 30px rgba(57, 255, 20, 0.6),
+                0 0 50px rgba(57, 255, 20, 0.35),
+                0 0 80px rgba(57, 255, 20, 0.2),
+                0 0 120px rgba(57, 255, 20, 0.1);
+  }
+}
+
+
+/* --- Pulse Glow: Color Variants --- */
+
+.pulse-glow--purple {
+  animation: pulse-glow-purple 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-purple {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(191, 64, 191, 0.4),
+                0 0 16px rgba(191, 64, 191, 0.25),
+                0 0 24px rgba(191, 64, 191, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(191, 64, 191, 0.6),
+                0 0 24px rgba(191, 64, 191, 0.4),
+                0 0 40px rgba(191, 64, 191, 0.25),
+                0 0 60px rgba(191, 64, 191, 0.1);
+  }
+}
+
+.pulse-glow--blue {
+  animation: pulse-glow-blue 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-blue {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(0, 212, 255, 0.4),
+                0 0 16px rgba(0, 212, 255, 0.25),
+                0 0 24px rgba(0, 212, 255, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(0, 212, 255, 0.6),
+                0 0 24px rgba(0, 212, 255, 0.4),
+                0 0 40px rgba(0, 212, 255, 0.25),
+                0 0 60px rgba(0, 212, 255, 0.1);
+  }
+}
+
+.pulse-glow--gold {
+  animation: pulse-glow-gold 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-gold {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.4),
+                0 0 16px rgba(255, 215, 0, 0.25),
+                0 0 24px rgba(255, 215, 0, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.6),
+                0 0 24px rgba(255, 215, 0, 0.4),
+                0 0 40px rgba(255, 215, 0, 0.25),
+                0 0 60px rgba(255, 215, 0, 0.1);
+  }
+}
+
+
+/* --- Pulse Glow: Combo (rainbow cycle) --- */
+.pulse-glow--rainbow {
+  animation: pulse-glow-rainbow 4s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-rainbow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.5),
+                0 0 20px rgba(57, 255, 20, 0.3);
+  }
+  25% {
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.5),
+                0 0 20px rgba(0, 212, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(191, 64, 191, 0.5),
+                0 0 20px rgba(191, 64, 191, 0.3);
+  }
+  75% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5),
+                0 0 20px rgba(255, 215, 0, 0.3);
+  }
+}
+
+
+/* --- Text Pulse Glow --- */
+.pulse-text-glow {
+  animation: pulse-text-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-text-glow {
+  0%, 100% {
+    text-shadow: 0 0 4px rgba(57, 255, 20, 0.5),
+                 0 0 8px rgba(57, 255, 20, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 8px rgba(57, 255, 20, 0.8),
+                 0 0 16px rgba(57, 255, 20, 0.6),
+                 0 0 24px rgba(57, 255, 20, 0.3);
+  }
+}
+
+.pulse-text-glow--purple {
+  animation: pulse-text-glow-purple 2s ease-in-out infinite;
+}
+
+@keyframes pulse-text-glow-purple {
+  0%, 100% {
+    text-shadow: 0 0 4px rgba(191, 64, 191, 0.5),
+                 0 0 8px rgba(191, 64, 191, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 8px rgba(191, 64, 191, 0.8),
+                 0 0 16px rgba(191, 64, 191, 0.6),
+                 0 0 24px rgba(191, 64, 191, 0.3);
+  }
+}
+
+
+/* ============================================================
+   4. PROGRESS SHINE ANIMATIONS
+   --------------------------------------------------------
+   Gradient sweep effects for progress bars and loading states.
+   Extends the base progress-shine in components.css.
+   ============================================================ */
+
+/* --- Progress: Fast shine (loading) --- */
+.progress-bar--loading .progress-bar__fill::after {
+  animation: progress-shine-fast 1.5s ease-in-out infinite;
+}
+
+@keyframes progress-shine-fast {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* --- Progress: Slow ambient shine --- */
+.progress-bar--ambient .progress-bar__fill::after {
+  animation: progress-shine-slow 4s ease-in-out infinite;
+}
+
+@keyframes progress-shine-slow {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* --- Progress: Pulse glow on fill --- */
+.progress-bar--glow .progress-bar__fill {
+  box-shadow: 0 0 8px rgba(57, 255, 20, 0.3),
+              0 0 16px rgba(57, 255, 20, 0.15);
+  animation: progress-fill-glow 2s ease-in-out infinite;
+}
+
+@keyframes progress-fill-glow {
+  0%, 100% {
+    box-shadow: 0 0 6px rgba(57, 255, 20, 0.25),
+                0 0 12px rgba(57, 255, 20, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.5),
+                0 0 20px rgba(57, 255, 20, 0.25),
+                0 0 30px rgba(57, 255, 20, 0.1);
+  }
+}
+
+/* --- Progress: Striped animated fill --- */
+.progress-bar--striped .progress-bar__fill {
+  background-image: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.08) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.08) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 20px 20px;
+  animation: progress-stripes 1s linear infinite,
+             progress-fill-glow 2s ease-in-out infinite;
+}
+
+@keyframes progress-stripes {
+  0%   { background-position: 20px 0; }
+  100% { background-position: 0 0; }
+}
+
+
+/* ============================================================
+   5. SLIDE-IN / ENTRANCE ANIMATIONS
+   --------------------------------------------------------
+   Full directional slide-in system with stagger support.
+   Extends base slideInLeft/Right from index.css.
+   
+   Stagger: Apply data-delay="N" attribute or use
+   .stagger-1 through .stagger-8 utility classes.
+   ============================================================ */
+
+/* --- Slide from Right (deeper distance) --- */
+.slide-in-right {
+  animation: slide-in-right-deep 0.5s var(--ease-out) both;
+}
+
+@keyframes slide-in-right-deep {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* --- Slide from Left (deeper distance) --- */
+.slide-in-left {
+  animation: slide-in-left-deep 0.5s var(--ease-out) both;
+}
+
+@keyframes slide-in-left-deep {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* --- Slide from Bottom --- */
+.slide-in-bottom {
+  animation: slide-in-bottom 0.5s var(--ease-out) both;
+}
+
+@keyframes slide-in-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Slide from Top --- */
+.slide-in-top {
+  animation: slide-in-top 0.5s var(--ease-out) both;
+}
+
+@keyframes slide-in-top {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* --- Scale + Fade entrance --- */
+.scale-in {
+  animation: scale-in 0.4s var(--transition-spring) both;
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* --- Pop-in (bounce overshoot) --- */
+.pop-in {
+  animation: pop-in 0.5s var(--transition-spring) both;
+}
+
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  80% {
+    transform: scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+/* --- Stagger Delay Utilities --- */
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+.stagger-5 { animation-delay: 250ms; }
+.stagger-6 { animation-delay: 300ms; }
+.stagger-7 { animation-delay: 350ms; }
+.stagger-8 { animation-delay: 400ms; }
+.stagger-9 { animation-delay: 450ms; }
+.stagger-10 { animation-delay: 500ms; }
+
+/* Quick stagger (for tight groups) */
+.stagger-fast-1 { animation-delay: 30ms; }
+.stagger-fast-2 { animation-delay: 60ms; }
+.stagger-fast-3 { animation-delay: 90ms; }
+.stagger-fast-4 { animation-delay: 120ms; }
+.stagger-fast-5 { animation-delay: 150ms; }
+
+
+/* ============================================================
+   6. SCORE / NUMBER ANIMATIONS
+   --------------------------------------------------------
+   Effects for the large score display and score badges
+   when values change.
+   ============================================================ */
+
+/* --- Score Update Flash --- */
+.score-flash {
+  animation: score-flash 0.6s ease-out;
+}
+
+@keyframes score-flash {
+  0% {
+    filter: brightness(1);
+    text-shadow:
+      0 0 5px rgba(57, 255, 20, 0.8),
+      0 0 10px rgba(57, 255, 20, 0.6);
+  }
+  25% {
+    filter: brightness(2);
+    text-shadow:
+      0 0 10px rgba(57, 255, 20, 1),
+      0 0 20px rgba(57, 255, 20, 0.8),
+      0 0 40px rgba(57, 255, 20, 0.5),
+      0 0 80px rgba(57, 255, 20, 0.3);
+  }
+  100% {
+    filter: brightness(1);
+    text-shadow:
+      0 0 5px rgba(57, 255, 20, 0.8),
+      0 0 10px rgba(57, 255, 20, 0.6),
+      0 0 20px rgba(57, 255, 20, 0.4),
+      0 0 40px rgba(57, 255, 20, 0.2);
+  }
+}
+
+/* --- Score Pop (for +N floating indicator) --- */
+.score-pop {
+  animation: score-pop 0.8s var(--ease-out) both;
+}
+
+@keyframes score-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-5px) scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.9);
+  }
+}
+
+/* --- Score Badge Pulse (when score changes) --- */
+.score-badge--pulse {
+  animation: score-badge-pulse 0.5s ease-out;
+}
+
+@keyframes score-badge-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+  40% {
+    transform: scale(1.2);
+    box-shadow: 0 0 12px rgba(57, 255, 20, 0.5),
+                0 0 24px rgba(57, 255, 20, 0.3);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+
+/* ============================================================
+   7. ACHIEVEMENT UNLOCK ANIMATION
+   --------------------------------------------------------
+   A multi-stage reveal for when a new achievement is earned.
+   Combines scale, glow, and border animation.
+   
+   Usage: Add .achievement-unlock to the card element.
+   ============================================================ */
+
+.achievement-unlock {
+  animation: achievement-unlock 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes achievement-unlock {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-5deg);
+    filter: brightness(0.5) blur(4px);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.1) rotate(1deg);
+    filter: brightness(1.5) blur(0);
+  }
+  60% {
+    transform: scale(0.95) rotate(-0.5deg);
+    filter: brightness(1.2);
+  }
+  80% {
+    transform: scale(1.02) rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+}
+
+/* Achievement glow ring — radial burst effect */
+.achievement-unlock::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  animation: achievement-ring-burst 0.8s ease-out both;
+  pointer-events: none;
+}
+
+@keyframes achievement-ring-burst {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.6),
+                0 0 0 0 rgba(255, 215, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 15px rgba(255, 215, 0, 0),
+                0 0 30px 5px rgba(255, 215, 0, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0),
+                0 0 0 0 rgba(255, 215, 0, 0);
+  }
+}
+
+/* Legendary achievement — rainbow ring */
+.achievement-unlock--legendary::after {
+  animation: achievement-ring-legendary 1s ease-out both;
+}
+
+@keyframes achievement-ring-legendary {
+  0% {
+    box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.6),
+                0 0 0 0 rgba(0, 212, 255, 0.3);
+  }
+  33% {
+    box-shadow: 0 0 0 15px rgba(0, 212, 255, 0),
+                0 0 30px 5px rgba(191, 64, 191, 0.3);
+  }
+  66% {
+    box-shadow: 0 0 0 30px rgba(191, 64, 191, 0),
+                0 0 50px 10px rgba(255, 215, 0, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0),
+                0 0 0 0 rgba(57, 255, 20, 0);
+  }
+}
+
+
+/* ============================================================
+   8. PAGE TRANSITION ANIMATIONS
+   --------------------------------------------------------
+   Crossfade + slide effects for module switching.
+   
+   Usage: Toggle .page-enter / .page-exit on page containers.
+   ============================================================ */
+
+/* --- Page Enter (from right) --- */
+.page-enter-right {
+  animation: page-enter-right 0.35s var(--ease-out) both;
+}
+
+@keyframes page-enter-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* --- Page Enter (from left) --- */
+.page-enter-left {
+  animation: page-enter-left 0.35s var(--ease-out) both;
+}
+
+@keyframes page-enter-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* --- Page Exit (to left) --- */
+.page-exit-left {
+  animation: page-exit-left 0.25s var(--ease-in) both;
+}
+
+@keyframes page-exit-left {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+}
+
+/* --- Page Exit (to right) --- */
+.page-exit-right {
+  animation: page-exit-right 0.25s var(--ease-in) both;
+}
+
+@keyframes page-exit-right {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+
+/* ============================================================
+   9. NOISE / GRAIN OVERLAY
+   --------------------------------------------------------
+   Animated film grain texture for atmosphere.
+   
+   Usage: <div class="noise-overlay" aria-hidden="true">
+   ============================================================ */
+
+.noise-overlay {
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: calc(var(--z-overlay) - 1);
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  animation: noise-drift 0.5s steps(3) infinite;
+}
+
+@keyframes noise-drift {
+  0%   { transform: translate(0, 0); }
+  33%  { transform: translate(-5%, -5%); }
+  66%  { transform: translate(5%, 3%); }
+  100% { transform: translate(-3%, 5%); }
+}
+
+/* Lighter variant */
+.noise-overlay--light {
+  opacity: 0.02;
+  animation-duration: 1s;
+}
+
+
+/* ============================================================
+   10. ANIMATED GRADIENT BORDER
+   --------------------------------------------------------
+   Rotating hue border for legendary / special elements.
+   
+   Usage: <div class="animated-border animated-border--slow">
+   ============================================================ */
+
+.animated-border {
+  position: relative;
+  z-index: 1;
+}
+
+.animated-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+    var(--border-angle, 0deg),
+    var(--accent-green),
+    var(--accent-blue),
+    var(--accent-purple),
+    var(--accent-gold),
+    var(--accent-green)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: border-rotate 3s linear infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes border-rotate {
+  0%   { --border-angle: 0deg; }
+  100% { --border-angle: 360deg; }
+}
+
+/* Register the custom property for animation */
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* Slow variant */
+.animated-border--slow::before {
+  animation-duration: 6s;
+}
+
+/* Fast variant */
+.animated-border--fast::before {
+  animation-duration: 1.5s;
+}
+
+
+/* ============================================================
+   11. TYPING / CURSOR ANIMATION
+   --------------------------------------------------------
+   AI typing indicator and blinking cursor.
+   ============================================================ */
+
+/* --- Blinking Cursor --- */
+.cursor-blink::after {
+  content: '|';
+  display: inline-block;
+  color: var(--accent-green);
+  animation: cursor-blink 1s step-end infinite;
+  margin-left: 2px;
+  font-weight: var(--font-bold);
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+
+/* --- Typing Dots (AI loading indicator) --- */
+.typing-dots {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.typing-dots__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--accent-green);
+  animation: typing-dot-bounce 1.4s ease-in-out infinite;
+}
+
+.typing-dots__dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.typing-dots__dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes typing-dot-bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-8px);
+    opacity: 1;
+    box-shadow: 0 0 6px rgba(57, 255, 20, 0.5);
+  }
+}
+
+/* --- Typing Text Reveal (for AI responses) --- */
+.typing-reveal {
+  overflow: hidden;
+  border-right: 2px solid var(--accent-green);
+  animation: typing-reveal-cursor 0.8s step-end infinite;
+}
+
+@keyframes typing-reveal-cursor {
+  0%, 100% { border-color: var(--accent-green); }
+  50%      { border-color: transparent; }
+}
+
+
+/* ============================================================
+   12. SHAKE / IMPACT ANIMATIONS
+   --------------------------------------------------------
+   Feedback effects for errors, rejections, and impacts.
+   ============================================================ */
+
+/* --- Horizontal Shake (error) --- */
+.shake-horizontal {
+  animation: shake-horizontal 0.5s ease-in-out;
+}
+
+@keyframes shake-horizontal {
+  0%, 100% { transform: translateX(0); }
+  10% { transform: translateX(-8px); }
+  20% { transform: translateX(8px); }
+  30% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  50% { transform: translateX(-4px); }
+  60% { transform: translateX(4px); }
+  70% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+/* --- Vertical Shake (impact) --- */
+.shake-vertical {
+  animation: shake-vertical 0.4s ease-in-out;
+}
+
+@keyframes shake-vertical {
+  0%, 100% { transform: translateY(0); }
+  20% { transform: translateY(-6px); }
+  40% { transform: translateY(6px); }
+  60% { transform: translateY(-4px); }
+  80% { transform: translateY(4px); }
+}
+
+/* --- Reject / Error Flash --- */
+.flash-error {
+  animation: flash-error 0.6s ease-out;
+}
+
+@keyframes flash-error {
+  0%   { background-color: transparent; }
+  20%  { background-color: rgba(255, 71, 87, 0.15); }
+  40%  { background-color: transparent; }
+  60%  { background-color: rgba(255, 71, 87, 0.1); }
+  100% { background-color: transparent; }
+}
+
+/* --- Success Flash --- */
+.flash-success {
+  animation: flash-success 0.6s ease-out;
+}
+
+@keyframes flash-success {
+  0%   { background-color: transparent; }
+  20%  { background-color: rgba(57, 255, 20, 0.12); }
+  40%  { background-color: transparent; }
+  60%  { background-color: rgba(57, 255, 20, 0.06); }
+  100% { background-color: transparent; }
+}
+
+
+/* ============================================================
+   13. UTILITY: ANIMATION CONTROL
+   --------------------------------------------------------
+   Classes to pause, play, or hide animated elements.
+   ============================================================ */
+
+/* Pause all animations on element */
+.animation-paused {
+  animation-play-state: paused !important;
+}
+
+/* Ensure element starts invisible, reveals on animation */
+.will-animate {
+  opacity: 0;
+}
+
+.animation-fill-forwards {
+  animation-fill-mode: forwards;
+}
+
+/* Reduce motion — enhanced version for animations.css */
+@media (prefers-reduced-motion: reduce) {
+  .scanline--animated::after,
+  .glitch--continuous::before,
+  .glitch--continuous::after,
+  .noise-overlay,
+  .animated-border::before,
+  .cursor-blink::after,
+  .typing-dots__dot {
+    animation: none !important;
+  }
+
+  .glitch--continuous::before,
+  .glitch--continuous::after {
+    display: none;
+  }
+}
+
+
+/* ============================================================
+   END OF ANIMATION LIBRARY
+   ============================================================ */

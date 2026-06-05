@@ -1,0 +1,770 @@
+/* ============================================================
+   ABSURDITY INDEX // 荒谬指数 — Record Module Styles
+   
+   Event recording page-specific styles:
+   - Record page layout and sections
+   - AI analysis area (textarea, button, loading state)
+   - Quick event buttons grid
+   - AI preview panel refinements for record context
+   - Achievement preview within AI results
+   - Section title styling (shared across modules)
+   - Entrance animations and transitions
+   - Responsive adjustments
+   
+   Depends on: index.css (tokens), layout.css (structure),
+               components.css (card, btn, input, badge, 
+               quick-event-btn, ai-preview)
+   ============================================================ */
+
+
+/* ============================================================
+   1. RECORD PAGE
+   ============================================================ */
+
+#page-record {
+  padding-bottom: var(--space-16);
+}
+
+
+/* ============================================================
+   2. SECTION TITLES (shared across modules)
+   ============================================================ */
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  position: relative;
+}
+
+/* Glowing underline accent */
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-green),
+    transparent
+  );
+  border-radius: var(--radius-full);
+}
+
+.section-icon {
+  font-size: var(--text-xl);
+  flex-shrink: 0;
+}
+
+
+/* ============================================================
+   3. RECORD SECTION CONTAINERS
+   ============================================================ */
+
+.record-section {
+  margin-bottom: var(--space-10);
+  opacity: 0;
+  transform: translateY(var(--space-4));
+  animation: record-section-enter 0.5s var(--ease-out) forwards;
+}
+
+.record-section:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+@keyframes record-section-enter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* ============================================================
+   4. AI ANALYSIS AREA
+   ============================================================ */
+
+.record-ai {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* --------------------------------------------------------
+   AI Textarea — Large input with green border focus
+   -------------------------------------------------------- */
+.record-ai .input-textarea {
+  min-height: 120px;
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  padding: var(--space-5);
+  background-color: rgba(10, 10, 15, 0.6);
+  border-color: rgba(57, 255, 20, 0.1);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+}
+
+.record-ai .input-textarea::placeholder {
+  color: var(--text-muted);
+  font-style: normal;
+  font-size: var(--text-sm);
+}
+
+.record-ai .input-textarea:focus {
+  border-color: var(--accent-green);
+  box-shadow:
+    0 0 0 2px rgba(57, 255, 20, 0.1),
+    0 0 15px rgba(57, 255, 20, 0.08),
+    inset 0 0 20px rgba(57, 255, 20, 0.02);
+  background-color: rgba(10, 10, 15, 0.8);
+}
+
+/* Ambient glow effect around focused textarea */
+.record-ai .input-textarea:focus::placeholder {
+  color: var(--text-secondary);
+}
+
+/* --------------------------------------------------------
+   AI Analyze Button
+   -------------------------------------------------------- */
+.record-ai .btn--accent {
+  align-self: flex-start;
+  padding: var(--space-3) var(--space-8);
+  position: relative;
+}
+
+/* Subtle scan-line effect on button */
+.record-ai .btn--accent::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 212, 255, 0.03) 2px,
+    rgba(0, 212, 255, 0.03) 4px
+  );
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.record-ai .btn--accent:hover::after {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------
+   AI Loading / Analyzing State
+   -------------------------------------------------------- */
+.record-ai .btn--accent.btn--loading {
+  pointer-events: none;
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+.record-ai .btn--accent.btn--loading .btn__icon {
+  animation: ai-analyze-spin 1.2s linear infinite;
+}
+
+@keyframes ai-analyze-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Pulsing border while analyzing */
+.record-ai .btn--accent.btn--loading {
+  animation: ai-analyze-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes ai-analyze-pulse {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(0, 212, 255, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 10px rgba(0, 212, 255, 0.4),
+      0 0 20px rgba(0, 212, 255, 0.2);
+  }
+}
+
+/* Textarea dimmed while analyzing */
+.record-ai--analyzing .input-textarea {
+  opacity: 0.5;
+  pointer-events: none;
+  border-color: rgba(0, 212, 255, 0.2);
+}
+
+
+/* ============================================================
+   5. AI PREVIEW PANEL (Record-specific refinements)
+   ============================================================ */
+
+/* Entrance animation when preview appears */
+.ai-preview:not(.hidden) {
+  animation: ai-preview-enter 0.4s var(--ease-out) forwards;
+}
+
+@keyframes ai-preview-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-4)) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Header: level badge + score alignment */
+.ai-preview__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Level badge size in preview */
+.ai-preview__header .badge {
+  font-size: var(--text-sm);
+  padding: var(--space-1) var(--space-4);
+  letter-spacing: var(--tracking-widest);
+}
+
+/* Score badge emphasis */
+.ai-preview__header .score-badge {
+  font-size: var(--text-base);
+  padding: var(--space-1) var(--space-4);
+}
+
+/* Title styling */
+.ai-preview__title {
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-3);
+  line-height: var(--leading-snug);
+}
+
+/* Comment / AI snark */
+.ai-preview__comment {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-style: italic;
+  line-height: var(--leading-relaxed);
+  padding: var(--space-4);
+  background-color: rgba(191, 64, 191, 0.03);
+  border-left: 2px solid var(--accent-purple);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  margin-bottom: var(--space-4);
+  position: relative;
+}
+
+/* Quotation mark decoration */
+.ai-preview__comment::before {
+  content: '\201C';
+  position: absolute;
+  top: var(--space-1);
+  left: var(--space-3);
+  font-size: var(--text-2xl);
+  color: var(--accent-purple);
+  opacity: 0.3;
+  font-style: normal;
+  line-height: 1;
+}
+
+
+/* ============================================================
+   6. ACHIEVEMENT PREVIEW (within AI result)
+   ============================================================ */
+
+/* Achievement container — Purple-bordered section */
+.ai-preview__achievement {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: linear-gradient(
+    135deg,
+    rgba(191, 64, 191, 0.04) 0%,
+    rgba(255, 215, 0, 0.04) 100%
+  );
+  border: 1px solid rgba(191, 64, 191, 0.2);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-4);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle shimmer overlay */
+.ai-preview__achievement::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(191, 64, 191, 0.06),
+    transparent
+  );
+  animation: achievement-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes achievement-shimmer {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+/* Emoji icon */
+.ai-preview__achievement .achievement-icon {
+  font-size: var(--text-3xl);
+  flex-shrink: 0;
+  width: var(--space-12);
+  height: var(--space-12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(191, 64, 191, 0.08);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(191, 64, 191, 0.15);
+}
+
+/* Achievement name */
+.ai-preview__achievement .achievement-name {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  color: var(--accent-gold);
+  letter-spacing: var(--tracking-wide);
+  margin-bottom: var(--space-1);
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+
+/* Achievement description */
+.ai-preview__achievement .achievement-desc {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+}
+
+
+/* ============================================================
+   7. AI PREVIEW ACTIONS
+   ============================================================ */
+
+.ai-preview__actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Confirm button — Primary green */
+.ai-preview__actions .btn--primary {
+  flex: 1;
+  padding: var(--space-3) var(--space-6);
+}
+
+/* Retry button — Ghost */
+.ai-preview__actions .btn--ghost {
+  padding: var(--space-3) var(--space-6);
+}
+
+
+/* ============================================================
+   8. QUICK EVENTS GRID
+   ============================================================ */
+
+.quick-events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-3);
+}
+
+/* Staggered entrance for grid children */
+.quick-events-grid > * {
+  opacity: 0;
+  transform: translateY(var(--space-3));
+  animation: quick-event-enter 0.4s var(--ease-out) forwards;
+}
+
+.quick-events-grid > *:nth-child(1) { animation-delay: 60ms; }
+.quick-events-grid > *:nth-child(2) { animation-delay: 120ms; }
+.quick-events-grid > *:nth-child(3) { animation-delay: 180ms; }
+.quick-events-grid > *:nth-child(4) { animation-delay: 240ms; }
+.quick-events-grid > *:nth-child(5) { animation-delay: 300ms; }
+.quick-events-grid > *:nth-child(6) { animation-delay: 360ms; }
+.quick-events-grid > *:nth-child(7) { animation-delay: 420ms; }
+
+@keyframes quick-event-enter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --------------------------------------------------------
+   Quick Event Button — Level-Specific Hover Effects
+   -------------------------------------------------------- */
+
+/* BASIC events: green glow on hover */
+.quick-event-btn[data-level="basic"]:hover {
+  border-color: rgba(57, 255, 20, 0.25);
+  box-shadow:
+    0 0 10px rgba(57, 255, 20, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.quick-event-btn[data-level="basic"]:hover::before {
+  background: linear-gradient(
+    135deg,
+    rgba(57, 255, 20, 0.05) 0%,
+    transparent 50%
+  );
+}
+
+/* COMBO events: blue glow on hover */
+.quick-event-btn[data-level="combo"]:hover {
+  border-color: rgba(0, 212, 255, 0.25);
+  box-shadow:
+    0 0 10px rgba(0, 212, 255, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.quick-event-btn[data-level="combo"]:hover::before {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.05) 0%,
+    transparent 50%
+  );
+}
+
+/* RARE events: purple glow on hover */
+.quick-event-btn[data-level="rare"]:hover {
+  border-color: rgba(191, 64, 191, 0.25);
+  box-shadow:
+    0 0 10px rgba(191, 64, 191, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.quick-event-btn[data-level="rare"]:hover::before {
+  background: linear-gradient(
+    135deg,
+    rgba(191, 64, 191, 0.05) 0%,
+    transparent 50%
+  );
+}
+
+/* EPIC events: gold glow + subtle bg highlight */
+.quick-event-btn[data-level="epic"] {
+  background-color: rgba(255, 215, 0, 0.02);
+  border-color: rgba(255, 215, 0, 0.1);
+}
+
+.quick-event-btn[data-level="epic"]:hover {
+  border-color: rgba(255, 215, 0, 0.3);
+  background-color: rgba(255, 215, 0, 0.05);
+  box-shadow:
+    0 0 12px rgba(255, 215, 0, 0.1),
+    0 0 24px rgba(255, 215, 0, 0.05),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.quick-event-btn[data-level="epic"]:hover::before {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.06) 0%,
+    transparent 50%
+  );
+}
+
+/* --------------------------------------------------------
+   Quick Event Button — Click Feedback
+   -------------------------------------------------------- */
+.quick-event-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Flash effect on click */
+.quick-event-btn--flash {
+  animation: quick-event-flash 0.3s ease-out;
+}
+
+@keyframes quick-event-flash {
+  0% {
+    box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+/* Level-specific flash colors */
+.quick-event-btn--flash[data-level="combo"] {
+  animation-name: quick-event-flash-blue;
+}
+
+@keyframes quick-event-flash-blue {
+  0% {
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+.quick-event-btn--flash[data-level="rare"] {
+  animation-name: quick-event-flash-purple;
+}
+
+@keyframes quick-event-flash-purple {
+  0% {
+    box-shadow: 0 0 20px rgba(191, 64, 191, 0.4);
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+.quick-event-btn--flash[data-level="epic"] {
+  animation-name: quick-event-flash-gold;
+}
+
+@keyframes quick-event-flash-gold {
+  0% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+
+/* ============================================================
+   9. RECORD PAGE EMPTY / INFO STATES
+   ============================================================ */
+
+/* AI unavailable notice */
+.record-ai__notice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background-color: rgba(255, 215, 0, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--accent-gold);
+  margin-top: var(--space-2);
+}
+
+.record-ai__notice-icon {
+  font-size: var(--text-lg);
+  flex-shrink: 0;
+}
+
+/* Recently recorded success flash */
+.record-success-flash {
+  animation: record-success 0.6s ease-out;
+}
+
+@keyframes record-success {
+  0% {
+    box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(57, 255, 20, 0.1);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(57, 255, 20, 0);
+  }
+}
+
+
+/* ============================================================
+   10. RESPONSIVE: TABLET (768px - 1024px)
+   ============================================================ */
+
+@media screen and (max-width: 1024px) {
+  .quick-events-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+
+/* ============================================================
+   11. RESPONSIVE: MOBILE (< 768px)
+   ============================================================ */
+
+@media screen and (max-width: 768px) {
+  /* Section titles */
+  .section-title {
+    font-size: var(--text-base);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-2);
+  }
+
+  .section-icon {
+    font-size: var(--text-lg);
+  }
+
+  /* AI textarea */
+  .record-ai .input-textarea {
+    min-height: 100px;
+    padding: var(--space-4);
+    font-size: var(--text-sm);
+  }
+
+  /* AI button full width on mobile */
+  .record-ai .btn--accent {
+    align-self: stretch;
+  }
+
+  /* Quick events grid — single column */
+  .quick-events-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  /* AI preview */
+  .ai-preview {
+    padding: var(--space-4);
+  }
+
+  .ai-preview__header .badge {
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-3);
+  }
+
+  .ai-preview__header .score-badge {
+    font-size: var(--text-sm);
+  }
+
+  .ai-preview__title {
+    font-size: var(--text-base);
+  }
+
+  .ai-preview__comment {
+    padding: var(--space-3);
+    font-size: var(--text-xs);
+  }
+
+  /* Achievement preview */
+  .ai-preview__achievement {
+    padding: var(--space-3) var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .ai-preview__achievement .achievement-icon {
+    width: var(--space-10);
+    height: var(--space-10);
+    font-size: var(--text-2xl);
+  }
+
+  .ai-preview__achievement .achievement-name {
+    font-size: var(--text-xs);
+  }
+
+  /* Actions stack on mobile */
+  .ai-preview__actions {
+    flex-direction: column;
+  }
+
+  .ai-preview__actions .btn {
+    width: 100%;
+  }
+}
+
+
+/* ============================================================
+   12. RESPONSIVE: VERY SMALL (< 480px)
+   ============================================================ */
+
+@media screen and (max-width: 480px) {
+  .record-ai .input-textarea {
+    min-height: 80px;
+    padding: var(--space-3);
+  }
+
+  .quick-event-btn {
+    padding: var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .quick-event-btn__icon {
+    width: var(--space-8);
+    height: var(--space-8);
+    font-size: var(--text-lg);
+  }
+
+  .quick-event-btn__text {
+    font-size: var(--text-xs);
+  }
+}
+
+
+/* ============================================================
+   13. HIGH CONTRAST / ACCESSIBILITY
+   ============================================================ */
+
+@media (prefers-contrast: high) {
+  .record-ai .input-textarea {
+    border-width: 2px;
+  }
+
+  .record-ai .input-textarea:focus {
+    border-color: var(--accent-green);
+    box-shadow: none;
+    outline: 2px solid var(--accent-green);
+    outline-offset: 2px;
+  }
+
+  .ai-preview {
+    border-width: 2px;
+  }
+
+  .ai-preview__achievement {
+    border-width: 2px;
+    border-color: var(--accent-purple);
+  }
+
+  .ai-preview__comment {
+    border-left-width: 3px;
+  }
+
+  .quick-event-btn {
+    border-width: 2px;
+  }
+
+  .section-title::after {
+    height: 3px;
+  }
+}
+
+
+/* ============================================================
+   END OF RECORD STYLES
+   ============================================================ */
