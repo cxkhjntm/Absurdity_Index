@@ -628,6 +628,9 @@ hr {
 /* --------------------------------------------------------
    GLITCH EFFECT
    Text jitter + chromatic aberration
+   Redesigned: intermittent subtle glitch, not continuous shaking.
+   The effect fires rarely during the animation cycle, keeping
+   text readable while maintaining the cyberpunk aesthetic.
    -------------------------------------------------------- */
 .glitch-text {
   position: relative;
@@ -643,38 +646,55 @@ hr {
   width: 100%;
   height: 100%;
   opacity: 0;
+  pointer-events: none;
 }
 
+/* Hover triggers a slow, intermittent glitch — not a rapid shake */
 .glitch-text:hover::before {
-  animation: glitch-1 0.3s linear infinite;
+  animation: glitch-elegant-1 6s ease-in-out infinite;
   color: var(--accent-blue);
-  opacity: 0.8;
-  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
-  transform: translate(-2px, -2px);
 }
 
 .glitch-text:hover::after {
-  animation: glitch-2 0.3s linear infinite;
+  animation: glitch-elegant-2 6s ease-in-out infinite;
   color: var(--accent-purple);
-  opacity: 0.8;
-  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
-  transform: translate(2px, 2px);
 }
 
-@keyframes glitch-1 {
-  0%, 100% { transform: translate(0); }
-  20% { transform: translate(-3px, 3px); }
-  40% { transform: translate(-3px, -3px); }
-  60% { transform: translate(3px, 3px); }
-  80% { transform: translate(3px, -3px); }
+/* Glitch fires in short bursts with long pauses between them */
+@keyframes glitch-elegant-1 {
+  0%, 100% { opacity: 0; transform: translate(0); clip-path: inset(0 0 100% 0); }
+  /* First burst at ~10% */
+  9%   { opacity: 0; transform: translate(0); clip-path: inset(0 0 100% 0); }
+  10%  { opacity: 0.7; transform: translate(-2px, 0); clip-path: inset(15% 0 40% 0); }
+  11%  { opacity: 0.7; transform: translate(2px, 0); clip-path: inset(60% 0 10% 0); }
+  12%  { opacity: 0; transform: translate(0); clip-path: inset(0 0 100% 0); }
+  /* Second burst at ~45% */
+  44%  { opacity: 0; transform: translate(0); clip-path: inset(0 0 100% 0); }
+  45%  { opacity: 0.6; transform: translate(-3px, 1px); clip-path: inset(30% 0 20% 0); }
+  46%  { opacity: 0.5; transform: translate(1px, -1px); clip-path: inset(5% 0 70% 0); }
+  47%  { opacity: 0; transform: translate(0); clip-path: inset(0 0 100% 0); }
+  /* Third burst at ~78% */
+  77%  { opacity: 0; transform: translate(0); clip-path: inset(0 0 100% 0); }
+  78%  { opacity: 0.7; transform: translate(2px, 0); clip-path: inset(50% 0 15% 0); }
+  79%  { opacity: 0; transform: translate(0); clip-path: inset(0 0 100% 0); }
 }
 
-@keyframes glitch-2 {
-  0%, 100% { transform: translate(0); }
-  20% { transform: translate(3px, -3px); }
-  40% { transform: translate(3px, 3px); }
-  60% { transform: translate(-3px, -3px); }
-  80% { transform: translate(-3px, 3px); }
+@keyframes glitch-elegant-2 {
+  0%, 100% { opacity: 0; transform: translate(0); clip-path: inset(100% 0 0 0); }
+  /* First burst at ~10% — offset from ::before */
+  9.5%  { opacity: 0; transform: translate(0); clip-path: inset(100% 0 0 0); }
+  10.5% { opacity: 0.7; transform: translate(2px, 0); clip-path: inset(55% 0 5% 0); }
+  11.5% { opacity: 0.6; transform: translate(-1px, 1px); clip-path: inset(10% 0 50% 0); }
+  12.5% { opacity: 0; transform: translate(0); clip-path: inset(100% 0 0 0); }
+  /* Second burst at ~45% */
+  44.5% { opacity: 0; transform: translate(0); clip-path: inset(100% 0 0 0); }
+  45.5% { opacity: 0.6; transform: translate(3px, -1px); clip-path: inset(20% 0 30% 0); }
+  46.5% { opacity: 0.5; transform: translate(-2px, 0); clip-path: inset(65% 0 5% 0); }
+  47.5% { opacity: 0; transform: translate(0); clip-path: inset(100% 0 0 0); }
+  /* Third burst at ~78% */
+  77.5% { opacity: 0; transform: translate(0); clip-path: inset(100% 0 0 0); }
+  78.5% { opacity: 0.6; transform: translate(-2px, 1px); clip-path: inset(40% 0 25% 0); }
+  79.5% { opacity: 0; transform: translate(0); clip-path: inset(100% 0 0 0); }
 }
 
 /* --------------------------------------------------------

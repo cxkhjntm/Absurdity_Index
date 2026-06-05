@@ -22,6 +22,11 @@ const Dashboard = (() => {
   function initDashboard() {
     _cacheElements();
     updateDashboard();
+
+    // Attach history delete handler once (event delegation)
+    if (els.historyList) {
+      els.historyList.addEventListener('click', _handleHistoryClick, false);
+    }
   }
 
   function _cacheElements() {
@@ -33,6 +38,7 @@ const Dashboard = (() => {
       levelProgressTxt:document.getElementById('level-progress-text'),
       miniTrendCanvas: document.getElementById('chart-mini-trend'),
       recentList:      document.getElementById('recent-events-list'),
+      historyList:     document.getElementById('history-list'),
     };
   }
 
@@ -41,6 +47,7 @@ const Dashboard = (() => {
     renderLevel();
     renderMiniTrend();
     renderRecentEvents();
+    renderHistoryList();
   }
 
   function renderTotalScore() {
@@ -233,6 +240,109 @@ const Dashboard = (() => {
     }).join('');
   }
 
+  /**
+   * Render full event history list with descriptions, achievements, and delete actions.
+   */
+  function renderHistoryList() {
+    if (!els.historyList) return;
+
+    const store = getStore();
+    const events = (store.events || [])
+      .slice()
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    if (events.length === 0) {
+      els.historyList.innerHTML = `
+        <div class="history-list__empty">
+          <span class="empty-icon">📭</span>
+          <p>暂无历史记录</p>
+        </div>
+      `;
+      return;
+    }
+
+    els.historyList.innerHTML = events.map(ev => {
+      const level = (ev.level || 'basic').toLowerCase();
+      const icon  = LEVEL_ICONS[level] || '⚡';
+      const title = ev.title || ev.desc || '未命名事件';
+      const score = ev.score || 0;
+      const time  = Utils.formatDate(ev.timestamp);
+      const desc  = ev.description || '';
+      const ach   = ev.achievement;
+
+      let achHTML = '';
+      if (ach) {
+        achHTML = `
+          <div class="history-item__achievement">
+            <span class="history-item__ach-icon">${ach.emoji || '🏆'}</span>
+            <span class="history-item__ach-name">${_escapeHtml(ach.name || '')}</span>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="history-item history-item--${level}" data-event-id="${ev.id}">
+          <div class="history-item__header">
+            <span class="history-item__icon">${icon}</span>
+            <span class="history-item__title">${_escapeHtml(title)}</span>
+            <span class="badge badge--${level}">+${score}</span>
+            <button class="history-item__delete" data-delete-id="${ev.id}" title="删除记录">×</button>
+          </div>
+          ${desc ? `<p class="history-item__desc">${_escapeHtml(desc)}</p>` : ''}
+          ${ev.aiComment ? `<p class="history-item__comment">🤖 ${_escapeHtml(ev.aiComment)}</p>` : ''}
+          ${achHTML}
+          <time class="history-item__time">${_escapeHtml(time)}</time>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function _handleHistoryClick(e) {
+    const deleteBtn = e.target.closest('[data-delete-id]');
+    if (!deleteBtn) return;
+
+    const eventId = deleteBtn.dataset.deleteId;
+    if (!eventId) return;
+
+    if (typeof showModal === 'function') {
+      showModal('确认删除', '<p>确定要删除这条荒谬记录吗？关联的成就也会一并删除，且无法恢复。</p>', [
+        {
+          text: '确认删除',
+          className: 'btn btn--danger',
+          onClick: () => {
+            if (typeof hideModal === 'function') hideModal();
+            if (typeof deleteEvent === 'function') {
+              deleteEvent(eventId);
+              updateDashboard();
+              // Also refresh achievements since associated achievements are cascade-deleted
+              if (typeof Achievements !== 'undefined' && Achievements.renderAchievements) {
+                Achievements.renderAchievements();
+              }
+              if (typeof showToast === 'function') {
+                showToast('记录及关联成就已删除', 'info');
+              }
+            }
+          },
+        },
+        {
+          text: '取消',
+          className: 'btn btn--ghost',
+          onClick: () => { if (typeof hideModal === 'function') hideModal(); },
+        },
+      ]);
+    } else {
+      if (confirm('确定要删除这条荒谬记录吗？关联的成就也会一并删除。')) {
+        if (typeof deleteEvent === 'function') {
+          deleteEvent(eventId);
+          updateDashboard();
+          if (typeof Achievements !== 'undefined' && Achievements.renderAchievements) {
+            Achievements.renderAchievements();
+          }
+        }
+      }
+    }
+  }
+
   function _escapeHtml(str) {
     const div = document.createElement('div');
     div.appendChild(document.createTextNode(str));
@@ -246,5 +356,6 @@ const Dashboard = (() => {
     renderLevel,
     renderMiniTrend,
     renderRecentEvents,
+    renderHistoryList,
   };
 })();

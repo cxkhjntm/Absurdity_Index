@@ -23,7 +23,10 @@ function initStore() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
       return { ...defaultData };
     }
-    return JSON.parse(existingData);
+    const store = JSON.parse(existingData);
+    // Auto-cleanup corrupted data from previous bugs
+    _cleanupStoreData(store);
+    return store;
   } catch (error) {
     console.error('Failed to initialize store:', error);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
@@ -70,7 +73,16 @@ function addEvent(event) {
 
 function addAchievement(achievement) {
   const store = getStore();
-  
+
+  // Prevent duplicate achievements with the same id (for pool achievements)
+  if (achievement.id) {
+    const exists = (store.achievements || []).some(a => a.id === achievement.id);
+    if (exists) {
+      console.warn('[Store] Achievement already exists, skipping:', achievement.id);
+      return (store.achievements || []).find(a => a.id === achievement.id);
+    }
+  }
+
   const newAchievement = {
     id: generateId(),
     unlockedAt: new Date().toISOString(),
@@ -121,17 +133,17 @@ function getWeeklyStats(weeksAgo = 0) {
   });
   
   const totalEvents = weekEvents.length;
-  const totalAbsurdity = weekEvents.reduce((sum, event) => sum + (event.absurdityLevel || 0), 0);
+  const totalAbsurdity = weekEvents.reduce((sum, event) => sum + (event.score || 0), 0);
   const averageAbsurdity = totalEvents > 0 ? totalAbsurdity / totalEvents : 0;
   
-  const byCategory = weekEvents.reduce((acc, event) => {
-    const category = event.category || '未分类';
-    acc[category] = (acc[category] || 0) + 1;
+  const byLevel = weekEvents.reduce((acc, event) => {
+    const level = (event.level || 'basic').toLowerCase();
+    acc[level] = (acc[level] || 0) + 1;
     return acc;
   }, {});
   
   const maxAbsurdityEvent = weekEvents.reduce((max, event) => 
-    (event.absurdityLevel > (max?.absurdityLevel || 0)) ? event : max, null);
+    ((event.score || 0) > (max?.score || 0)) ? event : max, null);
   
   return {
     period: {
@@ -141,7 +153,7 @@ function getWeeklyStats(weeksAgo = 0) {
     totalEvents,
     totalAbsurdity,
     averageAbsurdity: Math.round(averageAbsurdity * 100) / 100,
-    byCategory,
+    byLevel,
     maxAbsurdityEvent,
     events: weekEvents
   };
@@ -180,6 +192,64 @@ function importData(jsonString) {
 function clearData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
   return { ...defaultData };
+}
+
+function deleteEvent(eventId) {
+  const store = getStore();
+  const idx = store.events.findIndex(e => e.id === eventId);
+  if (idx === -1) return false;
+
+  // Also delete any achievements linked to this event
+  store.achievements = (store.achievements || []).filter(a => a.eventId !== eventId);
+
+  store.events.splice(idx, 1);
+  saveStore(store);
+  return true;
+}
+
+function deleteAchievement(achievementId) {
+  const store = getStore();
+  const idx = store.achievements.findIndex(a => a.id === achievementId);
+  if (idx === -1) return false;
+  store.achievements.splice(idx, 1);
+  saveStore(store);
+  return true;
+}
+
+/**
+ * Clean up corrupted store data from previous bugs.
+ * Removes achievements that have name='未命名成就' and no valid pool id,
+ * which were caused by the old bug passing wrong object to _saveAchievement.
+ */
+function _cleanupStoreData(store) {
+  if (!store || !store.achievements) return;
+
+  // Known pool achievement IDs that are valid
+  const validPoolIds = new Set([
+    'first-record', 'three-records', 'ten-records', 'fifty-records',
+    'first-basic', 'first-combo', 'first-rare', 'first-epic',
+    'five-combo', 'three-epic', 'five-epic', 'weekly-report',
+    'score-50', 'score-200', 'score-500', 'score-1000',
+    'level-4', 'all-levels',
+  ]);
+
+  const before = store.achievements.length;
+  store.achievements = store.achievements.filter(a => {
+    // Keep pool achievements (they always have valid names)
+    if (validPoolIds.has(a.id)) return true;
+    // Remove dynamic achievements named '未命名成就' (corrupted data)
+    if (a.name === '未命名成就' && !validPoolIds.has(a.id)) {
+      console.warn('[Store] Removing corrupted achievement:', a);
+      return false;
+    }
+    // Keep all other valid achievements
+    return true;
+  });
+
+  if (store.achievements.length !== before) {
+    console.log(`[Store] Cleaned up ${before - store.achievements.length} corrupted achievements`);
+    saveStore(store);
+  }
 }
 
 function generateId() {

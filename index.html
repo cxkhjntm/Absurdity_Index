@@ -254,22 +254,27 @@
             </div>
             <div class="card__body">
               <ul id="recent-events-list" class="event-list">
-                <!-- JS 动态渲染，每个 li 结构如下：
-                <li class="event-item event-item--{level}">
-                  <span class="event-item__icon">{emoji}</span>
-                  <div class="event-item__info">
-                    <span class="event-item__title">{title}</span>
-                    <span class="event-item__time">{relative_time}</span>
-                  </div>
-                  <span class="event-item__score">+{score}</span>
-                </li>
-                -->
                 <li class="event-list__empty">
                   <span class="empty-icon">🌑</span>
                   <p>尚无荒谬记录</p>
                   <p class="text-secondary">点击上方按钮开始记录</p>
                 </li>
               </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 完整事件历史记录 -->
+        <div class="history-section">
+          <h3 class="section-title">
+            <span class="section-icon">📜</span>
+            EVENT LOG // 事件历史记录
+          </h3>
+          <div id="history-list" class="history-list">
+            <!-- JS 动态渲染 -->
+            <div class="history-list__empty">
+              <span class="empty-icon">📭</span>
+              <p>暂无历史记录</p>
             </div>
           </div>
         </div>

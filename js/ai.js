@@ -7,12 +7,14 @@ const AI = (() => {
 请分析并返回 JSON 格式：
 {
   "level": "basic|combo|rare|epic",
-  "score": 数字,
+  "score": 数字（basic=1, combo=3, rare=10, epic=50）,
+  "absurdity_score": 0到100的整数（表示这件事的荒谬程度，越荒谬越高），
   "title": "事件标题（简洁幽默）",
-  "achievement": "成就名称（如果值得一个成就的话）",
+  "achievement": "成就名称（如果荒谬程度足够高，值得一个成就的话）",
   "achievement_desc": "成就描述",
   "comment": "一句毒舌点评"
-}`,
+}
+注意：absurdity_score 是 0-100 的荒谬评分，只有真正荒谬的事件才应该给高分。achievement 字段只在你认为事件足够荒谬时才填写。`,
     achievementGen: `你是一个成就系统设计师，风格是赛博朋克+黑色幽默。
 根据以下荒谬事件，生成一个有趣的成就：
 事件等级：{level}，事件描述：{description}
@@ -219,9 +221,13 @@ const AI = (() => {
       ? description.substring(0, 20) + '…'
       : description;
 
+    // Map level to a reasonable absurdity score for fallback
+    const absurdityMap = { basic: 30, combo: 50, rare: 70, epic: 90 };
+
     return {
       level,
       score,
+      absurdity_score: absurdityMap[level] || 30,
       title,
       achievement:      null,
       achievement_desc:  null,

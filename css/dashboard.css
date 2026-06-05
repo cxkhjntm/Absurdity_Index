@@ -605,5 +605,157 @@
 
 
 /* ============================================================
+   13. EVENT HISTORY LIST
+   ============================================================ */
+
+.history-section {
+  margin-top: var(--space-10);
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.history-list__empty {
+  text-align: center;
+  padding: var(--space-12) var(--space-6);
+  color: var(--text-secondary);
+}
+
+.history-list__empty .empty-icon {
+  font-size: var(--text-5xl);
+  display: block;
+  margin-bottom: var(--space-4);
+  opacity: 0.4;
+}
+
+.history-item {
+  background-color: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 3px solid var(--accent-green);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  transition: all var(--transition-fast);
+}
+
+.history-item:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(2px);
+}
+
+/* Level border colors */
+.history-item--basic  { border-left-color: var(--accent-green); }
+.history-item--combo  { border-left-color: var(--accent-blue); }
+.history-item--rare   { border-left-color: var(--accent-purple); }
+.history-item--epic   {
+  border-left-color: var(--accent-gold);
+  background-color: rgba(255, 215, 0, 0.02);
+}
+
+.history-item__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.history-item__icon {
+  font-size: var(--text-lg);
+  flex-shrink: 0;
+}
+
+.history-item__title {
+  flex: 1;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-item__delete {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-lg);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  opacity: 0;
+  cursor: pointer;
+  background: none;
+  border: 1px solid transparent;
+}
+
+.history-item:hover .history-item__delete {
+  opacity: 1;
+}
+
+.history-item__delete:hover {
+  color: var(--accent-red, #ff4444);
+  background-color: rgba(255, 68, 68, 0.1);
+  border-color: rgba(255, 68, 68, 0.3);
+}
+
+.history-item__desc {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0 0 var(--space-2) 0;
+  padding-left: calc(var(--text-lg) + var(--space-3));
+}
+
+.history-item__comment {
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  margin: 0 0 var(--space-2) 0;
+  padding-left: calc(var(--text-lg) + var(--space-3));
+  font-style: italic;
+}
+
+.history-item__achievement {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  background-color: rgba(191, 64, 191, 0.08);
+  border: 1px solid rgba(191, 64, 191, 0.2);
+  border-radius: var(--radius-full);
+  margin-left: calc(var(--text-lg) + var(--space-3));
+  margin-bottom: var(--space-2);
+}
+
+.history-item__ach-icon {
+  font-size: var(--text-sm);
+}
+
+.history-item__ach-name {
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  color: var(--accent-purple);
+  letter-spacing: var(--tracking-wide);
+}
+
+.history-item__time {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  letter-spacing: var(--tracking-wide);
+  padding-left: calc(var(--text-lg) + var(--space-3));
+  margin: 0;
+}
+
+
+/* ============================================================
    END OF DASHBOARD STYLES
    ============================================================ */

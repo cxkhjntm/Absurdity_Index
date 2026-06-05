@@ -142,6 +142,9 @@ const Achievements = (() => {
   function initAchievements() {
     _cacheElements();
     renderAchievements();
+    // Retroactively check and unlock achievements for existing events
+    // This handles cases where events were recorded before the unlock logic was added
+    checkAndUnlockAchievements();
   }
 
   function _cacheElements() {
@@ -197,19 +200,37 @@ const Achievements = (() => {
   }
 
   function _buildAchievementCard(poolItem, unlockedData, locked) {
-    const rarityClass = `achievement-card--${poolItem.rarity}`;
+    const rarity = poolItem.rarity || 'common';
+    const rarityClass = `achievement-card--${rarity}`;
     const lockedClass = locked ? ' achievement-card--locked' : '';
-    const rarityLabel = getRarityLabel(poolItem.rarity);
+    const rarityLabel = getRarityLabel(rarity);
     const unlockTime = unlockedData
       ? Utils.formatDate(unlockedData.unlockedAt)
       : '';
 
+    // For dynamic achievements, name may be in 'name' field directly
+    const name = poolItem.name || '未命名成就';
+    const description = poolItem.description || poolItem.desc || '';
+    const emoji = poolItem.emoji || '🏆';
+    const id = poolItem.id || ('dynamic-' + Math.random().toString(36).substr(2, 6));
+
+    // Look up source event if eventId exists
+    let sourceDesc = '';
+    if (unlockedData && unlockedData.eventId) {
+      const store = getStore();
+      const sourceEvent = (store.events || []).find(e => e.id === unlockedData.eventId);
+      if (sourceEvent) {
+        sourceDesc = sourceEvent.description || sourceEvent.title || '';
+      }
+    }
+
     return `
-      <div class="achievement-card ${rarityClass}${lockedClass}" data-achievement-id="${poolItem.id}">
+      <div class="achievement-card ${rarityClass}${lockedClass}" data-achievement-id="${id}">
         <div class="achievement-card__rarity-badge">${_escapeHtml(rarityLabel)}</div>
-        <span class="achievement-card__emoji">${poolItem.emoji}</span>
-        <h4 class="achievement-card__name">${_escapeHtml(poolItem.name)}</h4>
-        <p class="achievement-card__desc">${_escapeHtml(poolItem.description)}</p>
+        <span class="achievement-card__emoji">${emoji}</span>
+        <h4 class="achievement-card__name">${_escapeHtml(name)}</h4>
+        <p class="achievement-card__desc">${_escapeHtml(description)}</p>
+        ${sourceDesc ? `<p class="achievement-card__source" title="${_escapeHtml(sourceDesc)}">📌 ${_escapeHtml(sourceDesc.length > 40 ? sourceDesc.substring(0, 40) + '…' : sourceDesc)}</p>` : ''}
         ${unlockTime ? `<time class="achievement-card__time">${_escapeHtml(unlockTime)}</time>` : ''}
       </div>
     `;
@@ -316,6 +337,75 @@ const Achievements = (() => {
     }, { once: true });
   }
 
+  /**
+   * Check all predefined achievement conditions and unlock any that are met.
+   * Called after each event submission.
+   */
+  function checkAndUnlockAchievements() {
+    const store = getStore();
+    const events = store.events || [];
+    const totalScore = events.reduce((sum, e) => sum + (e.score || 0), 0);
+    const unlockedIds = new Set((store.achievements || []).map(a => a.id));
+
+    // Count events by level
+    const levelCounts = { basic: 0, combo: 0, rare: 0, epic: 0 };
+    const hasLevel = { basic: false, combo: false, rare: false, epic: false };
+    events.forEach(e => {
+      const lvl = (e.level || 'basic').toLowerCase();
+      if (levelCounts[lvl] !== undefined) {
+        levelCounts[lvl]++;
+        hasLevel[lvl] = true;
+      }
+    });
+
+    // Current stage
+    const stage = totalScore >= 501 ? 4 : totalScore >= 201 ? 3 : totalScore >= 51 ? 2 : 1;
+
+    // Define all condition checks
+    const checks = [
+      { id: 'first-record',   condition: events.length >= 1 },
+      { id: 'three-records',  condition: events.length >= 3 },
+      { id: 'ten-records',    condition: events.length >= 10 },
+      { id: 'fifty-records',  condition: events.length >= 50 },
+      { id: 'first-basic',    condition: hasLevel.basic },
+      { id: 'first-combo',    condition: hasLevel.combo },
+      { id: 'first-rare',     condition: hasLevel.rare },
+      { id: 'first-epic',     condition: hasLevel.epic },
+      { id: 'five-combo',     condition: levelCounts.combo >= 5 },
+      { id: 'three-epic',     condition: levelCounts.epic >= 3 },
+      { id: 'five-epic',      condition: levelCounts.epic >= 5 },
+      { id: 'score-50',       condition: totalScore >= 50 },
+      { id: 'score-200',      condition: totalScore >= 200 },
+      { id: 'score-500',      condition: totalScore >= 500 },
+      { id: 'score-1000',     condition: totalScore >= 1000 },
+      { id: 'level-4',        condition: stage >= 4 },
+      { id: 'all-levels',     condition: hasLevel.basic && hasLevel.combo && hasLevel.rare && hasLevel.epic },
+    ];
+
+    let newlyUnlocked = [];
+
+    checks.forEach(({ id, condition }) => {
+      if (condition && !unlockedIds.has(id)) {
+        const poolItem = ACHIEVEMENT_POOL.find(p => p.id === id);
+        if (poolItem) {
+          addAchievementToDisplay(poolItem);
+          newlyUnlocked.push(poolItem);
+        }
+      }
+    });
+
+    // Show toast for newly unlocked achievements
+    if (newlyUnlocked.length > 0) {
+      newlyUnlocked.forEach(ach => {
+        if (typeof showToast === 'function') {
+          showToast(`🏆 成就解锁：${ach.name}`, 'success');
+        }
+      });
+    }
+
+    return newlyUnlocked;
+  }
+
   function _escapeHtml(str) {
     const div = document.createElement('div');
     div.appendChild(document.createTextNode(str));
@@ -328,5 +418,6 @@ const Achievements = (() => {
     getRarityLabel,
     addAchievementToDisplay,
     getAchievementStats,
+    checkAndUnlockAchievements,
   };
 })();

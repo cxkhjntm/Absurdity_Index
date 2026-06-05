@@ -108,13 +108,14 @@ const Record = (() => {
 
     const level = (result.level || 'basic').toLowerCase();
     const levelLabels = { basic: 'BASIC', combo: 'COMBO', rare: 'RARE', epic: 'EPIC' };
+    const absurdityScore = result.absurdity_score || 0;
 
     if (els.resultLevel) {
       els.resultLevel.textContent = levelLabels[level] || 'BASIC';
       els.resultLevel.className = 'badge badge--' + level;
     }
     if (els.resultScore) {
-      els.resultScore.textContent = '+' + (result.score || 0);
+      els.resultScore.textContent = '+' + (result.score || 0) + (absurdityScore ? ' (荒谬度: ' + absurdityScore + '/100)' : '');
     }
     if (els.resultTitle) {
       els.resultTitle.textContent = result.title || '未命名事件';
@@ -127,7 +128,8 @@ const Record = (() => {
         els.resultComment.style.display = 'none';
       }
     }
-    if (result.achievement) {
+    // Only show achievement preview if absurdity score meets threshold
+    if (result.achievement && absurdityScore >= 66) {
       if (els.resultAch) els.resultAch.classList.remove('hidden');
       if (els.resultAchEmoji) els.resultAchEmoji.textContent = '🏆';
       if (els.resultAchName) els.resultAchName.textContent = result.achievement;
@@ -149,30 +151,41 @@ const Record = (() => {
     const result = _pendingAIResult;
     const level = (result.level || 'basic').toLowerCase();
     const score = result.score || 0;
+    const absurdityScore = result.absurdity_score || 0;
+
+    const achievementObj = result.achievement ? {
+      name: result.achievement,
+      desc: result.achievement_desc || '',
+      emoji: '🏆',
+    } : null;
 
     const eventData = {
       level:       level,
       score:       score,
+      absurdityScore: absurdityScore,
       title:       result.title || '未命名事件',
       description: result.description || '',
       aiComment:   result.comment || null,
     };
 
-    if (result.achievement) {
-      eventData.achievement = {
-        name: result.achievement,
-        desc: result.achievement_desc || '',
-        emoji: '🏆',
-      };
+    // Only attach achievement to event if absurdity_score >= 66
+    if (achievementObj && absurdityScore >= 66) {
+      eventData.achievement = achievementObj;
     }
 
     const savedEvent = addEvent(eventData);
 
-    if (result.achievement) {
-      _saveAchievement(result, savedEvent.id);
+    // Only save achievement if absurdity_score threshold met
+    if (achievementObj && absurdityScore >= 66) {
+      _saveAchievement(achievementObj, savedEvent.id);
     }
 
     _updateLevelWithChance(score, level);
+
+    // Check for predefined achievement unlocks
+    if (typeof Achievements !== 'undefined' && Achievements.checkAndUnlockAchievements) {
+      Achievements.checkAndUnlockAchievements();
+    }
 
     if (els.aiInput) els.aiInput.value = '';
     _hidePreview();
@@ -313,6 +326,12 @@ const Record = (() => {
     }
 
     _updateLevelWithChance(score, level);
+
+    // Check for predefined achievement unlocks
+    if (typeof Achievements !== 'undefined' && Achievements.checkAndUnlockAchievements) {
+      Achievements.checkAndUnlockAchievements();
+    }
+
     _refreshModules();
     _showToast('荒谬事件已记录 +' + score + ' 荒谬值', 'success');
   }
@@ -446,6 +465,9 @@ const Record = (() => {
   function _refreshModules() {
     if (typeof Dashboard !== 'undefined' && Dashboard.updateDashboard) {
       Dashboard.updateDashboard();
+    }
+    if (typeof Achievements !== 'undefined' && Achievements.renderAchievements) {
+      Achievements.renderAchievements();
     }
   }
 

@@ -1022,6 +1022,23 @@
   letter-spacing: var(--tracking-wide);
 }
 
+/* Source event description */
+.achievement-card__source {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-sm);
+  border-left: 2px solid rgba(191, 64, 191, 0.3);
+  line-height: var(--leading-relaxed);
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Locked overlay icon */
 .achievement-card--locked .achievement-card__emoji::after {
   content: '🔒';
