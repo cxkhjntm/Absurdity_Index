@@ -248,7 +248,7 @@
     0 0 20px rgba(191, 64, 191, 0.18),
     0 0 40px rgba(191, 64, 191, 0.08),
     0 8px 24px rgba(0, 0, 0, 0.4);
-  animation: none;
+  animation-play-state: paused;
 }
 
 /* Rare emoji shimmer */
@@ -289,7 +289,7 @@
     0 0 20px rgba(255, 215, 0, 0.18),
     0 0 40px rgba(255, 215, 0, 0.08),
     0 8px 24px rgba(0, 0, 0, 0.4);
-  animation: none;
+  animation-play-state: paused;
 }
 
 /* Epic emoji shimmer */
@@ -360,7 +360,7 @@
     0 0 25px rgba(191, 64, 191, 0.2),
     0 0 50px rgba(255, 215, 0, 0.1),
     0 8px 24px rgba(0, 0, 0, 0.4);
-  animation: none;
+  animation-play-state: paused;
 }
 
 /* Legendary rarity badge — gradient text */

@@ -115,6 +115,10 @@
           var reportData = Report.generateReport(0);
           Report.renderReport(reportData);
         }
+        // Unlock 'weekly-report' achievement on first report view
+        if (typeof Achievements !== 'undefined' && Achievements.checkAndUnlockAchievements) {
+          Achievements.checkAndUnlockAchievements();
+        }
         break;
       case 'settings':
         if (typeof Settings !== 'undefined' && Settings.loadSettings) {

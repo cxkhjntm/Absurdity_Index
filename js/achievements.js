@@ -380,6 +380,7 @@ const Achievements = (() => {
       { id: 'score-1000',     condition: totalScore >= 1000 },
       { id: 'level-4',        condition: stage >= 4 },
       { id: 'all-levels',     condition: hasLevel.basic && hasLevel.combo && hasLevel.rare && hasLevel.epic },
+      { id: 'weekly-report',  condition: events.length >= 1 },
     ];
 
     let newlyUnlocked = [];

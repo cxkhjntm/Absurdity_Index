@@ -406,9 +406,9 @@ const Record = (() => {
     const desc = (achievement.desc || '').toLowerCase();
     const combined = name + ' ' + desc;
 
-    if (/传说|legendary|终极|至尊/.test(combined)) return 'legendary';
-    if (/史诗|epic|觉醒|崩塌|崩溃/.test(combined)) return 'epic';
-    if (/稀有|rare|认证|终结/.test(combined)) return 'rare';
+    if (/传说|legendary|终极|至尊|不朽|永恒/.test(combined)) return 'legendary';
+    if (/史诗|epic|觉醒|崩塌|崩溃|毁灭|终结者/.test(combined)) return 'epic';
+    if (/稀有|rare|认证|终结|完美主义|妄想|强迫症|专家|大师|收藏家|鉴赏/.test(combined)) return 'rare';
     return 'common';
   }
 

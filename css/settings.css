@@ -511,9 +511,9 @@
   animation: settings-section-enter 0.5s var(--ease-out) forwards;
 }
 
-#page-settings.page--active .settings-section:nth-child(1) { animation-delay: 0ms; }
-#page-settings.page--active .settings-section:nth-child(2) { animation-delay: 100ms; }
-#page-settings.page--active .settings-section:nth-child(3) { animation-delay: 200ms; }
+#page-settings.page--active .settings-section:nth-child(2) { animation-delay: 0ms; }
+#page-settings.page--active .settings-section:nth-child(3) { animation-delay: 100ms; }
+#page-settings.page--active .settings-section:nth-child(4) { animation-delay: 200ms; }
 
 @keyframes settings-section-enter {
   to {
@@ -579,6 +579,7 @@
 #page-settings.page--active .data-actions > *:nth-child(1) { animation-delay: 150ms; }
 #page-settings.page--active .data-actions > *:nth-child(2) { animation-delay: 220ms; }
 #page-settings.page--active .data-actions > *:nth-child(3) { animation-delay: 290ms; }
+#page-settings.page--active .data-actions > *:nth-child(4) { animation-delay: 360ms; }
 
 @keyframes settings-btn-enter {
   from {

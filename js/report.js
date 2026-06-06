@@ -100,16 +100,18 @@ const Report = (() => {
 
     const stats = getWeeklyStats(weeksAgo);
     const prevStats = getWeeklyStats(weeksAgo + 1);
-    const { startStr, endStr } = Utils.getWeekRange(
-      new Date(Date.now() - weeksAgo * 7 * 24 * 60 * 60 * 1000)
-    );
+    const targetDate = new Date(Date.now() - weeksAgo * 7 * 24 * 60 * 60 * 1000);
+    const weekRange = Utils.getWeekRange(targetDate);
 
     const trendData = _buildTrendData(stats.events);
     const distributionData = _buildDistributionData(stats.events);
     const topEvents = _buildTopEvents(stats.events);
 
-    const weekStart = new Date(stats.period.start);
-    const weekEnd = new Date(stats.period.end);
+    // Use Utils.getWeekRange for consistent week boundaries
+    const weekStart = new Date(weekRange.start);
+    weekStart.setHours(0, 0, 0, 0);
+    const weekEnd = new Date(weekRange.end);
+    weekEnd.setHours(23, 59, 59, 999);
     const newAchievements = _buildWeekAchievements(weekStart, weekEnd);
 
     const delta = stats.totalAbsurdity - prevStats.totalAbsurdity;
@@ -118,7 +120,7 @@ const Report = (() => {
       : (stats.totalAbsurdity > 0 ? 100 : 0);
 
     return {
-      dateRange:       `${startStr} — ${endStr}`,
+      dateRange:       `${weekRange.startStr} — ${weekRange.endStr}`,
       weekScore:       stats.totalAbsurdity,
       eventCount:      stats.totalEvents,
       delta,
@@ -174,11 +176,13 @@ const Report = (() => {
   function _buildWeekAchievements(weekStart, weekEnd) {
     const store = getStore();
     const achievements = store.achievements || [];
+    const startMs = weekStart.getTime();
+    const endMs = weekEnd.getTime();
 
     return achievements.filter(ach => {
       if (!ach.unlockedAt) return false;
-      const t = new Date(ach.unlockedAt);
-      return t >= weekStart && t <= weekEnd;
+      const t = new Date(ach.unlockedAt).getTime();
+      return !isNaN(t) && t >= startMs && t <= endMs;
     });
   }
 
