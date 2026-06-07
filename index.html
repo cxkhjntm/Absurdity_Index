@@ -170,10 +170,19 @@
            - 点击后导航到 Record 页面或弹出快速记录模态框
            ======================================================== -->
       <header id="top-bar" class="top-bar">
-        <button id="btn-quick-record" class="btn btn--primary btn--glow" type="button">
-          <span class="btn__icon">+</span>
-          <span class="btn__text">RECORD // 记录荒谬</span>
+        <button id="btn-sidebar-toggle" class="btn btn--ghost" type="button" aria-label="切换侧边栏">
+          <span class="btn__icon">☰</span>
         </button>
+        <div class="top-bar__actions">
+          <button id="btn-refresh" class="btn btn--ghost" type="button" title="刷新同步数据">
+            <span class="btn__icon">🔄</span>
+            <span class="btn__text">刷新同步</span>
+          </button>
+          <button id="btn-quick-record" class="btn btn--primary btn--glow" type="button">
+            <span class="btn__icon">+</span>
+            <span class="btn__text">RECORD // 记录荒谬</span>
+          </button>
+        </div>
       </header>
 
 

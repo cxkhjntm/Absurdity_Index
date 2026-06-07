@@ -91,9 +91,6 @@ function createMiniLineChart(canvasId, data) {
   }
 
   const ctx = canvas.getContext('2d');
-  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  gradient.addColorStop(0, 'rgba(57, 255, 20, 0.3)');
-  gradient.addColorStop(1, 'rgba(57, 255, 20, 0.0)');
 
   const config = {
     type: 'line',
@@ -103,7 +100,15 @@ function createMiniLineChart(canvasId, data) {
         label: '荒谬值',
         data: data.values,
         borderColor: CHART_COLORS.neonGreen,
-        backgroundColor: gradient,
+        backgroundColor: function(context) {
+          const chart = context.chart;
+          const {ctx, chartArea} = chart;
+          if (!chartArea) return null;
+          const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+          gradient.addColorStop(0, 'rgba(57, 255, 20, 0.3)');
+          gradient.addColorStop(1, 'rgba(57, 255, 20, 0.0)');
+          return gradient;
+        },
         borderWidth: 2,
         fill: true,
         tension: 0.4,
@@ -138,9 +143,6 @@ function createTrendLineChart(canvasId, data) {
   }
 
   const ctx = canvas.getContext('2d');
-  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  gradient.addColorStop(0, 'rgba(0, 212, 255, 0.3)');
-  gradient.addColorStop(1, 'rgba(0, 212, 255, 0.0)');
 
   const config = {
     type: 'line',
@@ -150,7 +152,15 @@ function createTrendLineChart(canvasId, data) {
         label: '荒谬值趋势',
         data: data.values,
         borderColor: CHART_COLORS.neonBlue,
-        backgroundColor: gradient,
+        backgroundColor: function(context) {
+          const chart = context.chart;
+          const {ctx, chartArea} = chart;
+          if (!chartArea) return null;
+          const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+          gradient.addColorStop(0, 'rgba(0, 212, 255, 0.3)');
+          gradient.addColorStop(1, 'rgba(0, 212, 255, 0.0)');
+          return gradient;
+        },
         borderWidth: 2,
         fill: true,
         tension: 0.4,
@@ -262,8 +272,11 @@ function createDistributionChart(canvasId, data) {
         ctx.textAlign = 'center';
         ctx.fillStyle = CHART_COLORS.neonGreen;
 
-        const centerX = width / 2;
-        const centerY = height / 2;
+        // Obtain center coordinates from the first arc element to adjust for bottom legend shift
+        const meta = chart.getDatasetMeta(0);
+        const firstArc = meta && meta.data && meta.data[0];
+        const centerX = firstArc ? firstArc.x : width / 2;
+        const centerY = firstArc ? firstArc.y : height / 2;
 
         ctx.fillText(total.toString(), centerX, centerY - fontSize / 4);
 

@@ -13,6 +13,7 @@
      ================================================================ */
 
   let _currentPage = 'dashboard';
+  let _lastActiveDateStr = new Date().toDateString();
 
   function initApp() {
     if (typeof initStore === 'function') {
@@ -24,6 +25,9 @@
     setupNavigation();
     setupQuickRecord();
     setupModal();
+    setupAutoRefresh();
+    setupManualRefresh();
+    setupMobileSidebar();
 
     const hash = (location.hash || '').replace('#', '');
     const initialPage = _isValidPage(hash) ? hash : 'dashboard';
@@ -91,6 +95,88 @@
     refreshPage(pageName);
 
     _currentPage = pageName;
+
+    // Close mobile sidebar on navigation
+    var sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+      sidebar.classList.remove('open');
+    }
+  }
+
+  /* ================================================================
+     REFRESH & MOBILE SIDEBAR
+     ================================================================ */
+
+  function setupAutoRefresh() {
+    window.addEventListener('focus', function () {
+      _checkAndTriggerDateRefresh();
+    });
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') {
+        _checkAndTriggerDateRefresh();
+      }
+    });
+
+    setInterval(_checkAndTriggerDateRefresh, 5 * 60 * 1000);
+  }
+
+  function _checkAndTriggerDateRefresh() {
+    const todayStr = new Date().toDateString();
+    if (todayStr !== _lastActiveDateStr) {
+      console.log(`[Auto-Refresh] Date changed from ${_lastActiveDateStr} to ${todayStr}. Refreshing...`);
+      _lastActiveDateStr = todayStr;
+
+      if (typeof Report !== 'undefined' && Report.populateWeekSelector) {
+        Report.populateWeekSelector();
+      }
+
+      refreshPage(_currentPage);
+      showToast('日期已跨天，数据已自动刷新同步', 'info');
+    }
+  }
+
+  function setupManualRefresh() {
+    const btn = document.getElementById('btn-refresh');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+      const icon = btn.querySelector('.btn__icon');
+      if (icon) {
+        icon.style.display = 'inline-block';
+        icon.style.transition = 'transform 0.8s ease';
+        icon.style.transform = 'rotate(360deg)';
+        setTimeout(() => {
+          icon.style.transition = 'none';
+          icon.style.transform = 'rotate(0deg)';
+        }, 800);
+      }
+
+      if (typeof Report !== 'undefined' && Report.populateWeekSelector) {
+        Report.populateWeekSelector();
+      }
+
+      refreshPage(_currentPage);
+      showToast('数据同步刷新成功', 'success');
+    });
+  }
+
+  function setupMobileSidebar() {
+    const toggleBtn = document.getElementById('btn-sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+
+    if (toggleBtn && sidebar) {
+      toggleBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sidebar.classList.toggle('open');
+      });
+
+      document.addEventListener('click', function (e) {
+        if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== toggleBtn) {
+          sidebar.classList.remove('open');
+        }
+      });
+    }
   }
 
   function refreshPage(pageName) {
@@ -114,6 +200,16 @@
         if (typeof Report !== 'undefined' && Report.renderReport) {
           var reportData = Report.generateReport(0);
           Report.renderReport(reportData);
+        }
+        // Mark hasReadReport as true in store
+        if (typeof getStore === 'function') {
+          const store = getStore();
+          if (!store.hasReadReport) {
+            store.hasReadReport = true;
+            if (typeof saveStore === 'function') {
+              saveStore(store);
+            }
+          }
         }
         // Unlock 'weekly-report' achievement on first report view
         if (typeof Achievements !== 'undefined' && Achievements.checkAndUnlockAchievements) {

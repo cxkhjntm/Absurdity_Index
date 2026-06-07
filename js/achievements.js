@@ -164,21 +164,22 @@ const Achievements = (() => {
     const storeAchievements = store.achievements || [];
     const poolIds = new Set(ACHIEVEMENT_POOL.map(p => p.id));
     const unlockedMap = new Map(storeAchievements.map(a => [a.id, a]));
+    const eventsMap = new Map((store.events || []).map(e => [e.id, e]));
 
     const unlockedCards = [];
     const lockedCards = [];
 
     ACHIEVEMENT_POOL.forEach(poolItem => {
       if (unlockedMap.has(poolItem.id)) {
-        unlockedCards.push(_buildAchievementCard(poolItem, unlockedMap.get(poolItem.id), false));
+        unlockedCards.push(_buildAchievementCard(poolItem, unlockedMap.get(poolItem.id), false, eventsMap));
       } else {
-        lockedCards.push(_buildAchievementCard(poolItem, null, true));
+        lockedCards.push(_buildAchievementCard(poolItem, null, true, eventsMap));
       }
     });
 
     storeAchievements.forEach(storeAch => {
       if (!poolIds.has(storeAch.id)) {
-        unlockedCards.push(_buildAchievementCard(storeAch, storeAch, false));
+        unlockedCards.push(_buildAchievementCard(storeAch, storeAch, false, eventsMap));
       }
     });
 
@@ -199,7 +200,7 @@ const Achievements = (() => {
     _updateStatsCount(storeAchievements.length);
   }
 
-  function _buildAchievementCard(poolItem, unlockedData, locked) {
+  function _buildAchievementCard(poolItem, unlockedData, locked, eventsMap) {
     const rarity = poolItem.rarity || 'common';
     const rarityClass = `achievement-card--${rarity}`;
     const lockedClass = locked ? ' achievement-card--locked' : '';
@@ -216,9 +217,8 @@ const Achievements = (() => {
 
     // Look up source event if eventId exists
     let sourceDesc = '';
-    if (unlockedData && unlockedData.eventId) {
-      const store = getStore();
-      const sourceEvent = (store.events || []).find(e => e.id === unlockedData.eventId);
+    if (unlockedData && unlockedData.eventId && eventsMap) {
+      const sourceEvent = eventsMap.get(unlockedData.eventId);
       if (sourceEvent) {
         sourceDesc = sourceEvent.description || sourceEvent.title || '';
       }
@@ -380,7 +380,7 @@ const Achievements = (() => {
       { id: 'score-1000',     condition: totalScore >= 1000 },
       { id: 'level-4',        condition: stage >= 4 },
       { id: 'all-levels',     condition: hasLevel.basic && hasLevel.combo && hasLevel.rare && hasLevel.epic },
-      { id: 'weekly-report',  condition: events.length >= 1 },
+      { id: 'weekly-report',  condition: store.hasReadReport === true },
     ];
 
     let newlyUnlocked = [];

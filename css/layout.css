@@ -231,7 +231,7 @@
   z-index: var(--z-sticky);
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: var(--space-4) 0;
   margin-bottom: var(--space-6);
   background: linear-gradient(
@@ -240,6 +240,17 @@
     var(--bg-primary) 60%,
     transparent 100%
   );
+}
+
+.top-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: auto;
+}
+
+#btn-sidebar-toggle {
+  display: none;
 }
 
 .top-bar::before {
@@ -1059,6 +1070,10 @@
     border-bottom: 1px solid rgba(57, 255, 20, 0.15);
     z-index: var(--z-sticky);
     justify-content: space-between;
+  }
+
+  #btn-sidebar-toggle {
+    display: inline-flex;
   }
 
   .top-bar::before {

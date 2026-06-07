@@ -35,7 +35,7 @@ const AI = (() => {
 
     return {
       enabled:  cfg.enabled  ?? false,
-      baseUrl:  cfg.baseUrl  ?? '',
+      baseUrl:  cfg.baseUrl  || 'https://api.openai.com/v1',
       apiKey:   cfg.apiKey   ?? '',
       model:    cfg.model    ?? 'gpt-3.5-turbo',
       prompts: {
@@ -135,8 +135,8 @@ const AI = (() => {
     const cfg = getAIConfig();
 
     const prompt = cfg.prompts.achievementGen
-      .replace('{level}', level)
-      .replace('{description}', description);
+      .replace(/\{level\}/g, level)
+      .replace(/\{description\}/g, description);
 
     const messages = [{ role: 'user', content: prompt }];
 
@@ -161,8 +161,8 @@ const AI = (() => {
     const cfg = getAIConfig();
 
     const prompt = cfg.prompts.levelNaming
-      .replace('{score}', score)
-      .replace('{stage}', stage);
+      .replace(/\{score\}/g, score)
+      .replace(/\{stage\}/g, stage);
 
     const messages = [{ role: 'user', content: prompt }];
 

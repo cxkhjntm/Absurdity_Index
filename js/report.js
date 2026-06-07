@@ -75,15 +75,16 @@ const Report = (() => {
       return t < min ? t : min;
     }, Infinity);
 
-    const now = Date.now();
-    const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-    const weeksSpan = Math.ceil((now - oldest) / msPerWeek);
+    const currentWeekRange = Utils.getWeekRange();
+    const oldestWeekRange = Utils.getWeekRange(new Date(oldest));
+    const msDiff = currentWeekRange.start.getTime() - oldestWeekRange.start.getTime();
+    const weeksSpan = Math.round(msDiff / (7 * 24 * 60 * 60 * 1000));
     const maxWeeks = Math.min(weeksSpan, 12);
 
     for (let i = 1; i <= maxWeeks; i++) {
-      const { startStr, endStr } = Utils.getWeekRange(
-        new Date(Date.now() - i * msPerWeek)
-      );
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() - i * 7);
+      const { startStr, endStr } = Utils.getWeekRange(targetDate);
       const option = document.createElement('option');
       option.value = String(i);
       option.textContent = `${startStr} — ${endStr}`;
@@ -100,7 +101,8 @@ const Report = (() => {
 
     const stats = getWeeklyStats(weeksAgo);
     const prevStats = getWeeklyStats(weeksAgo + 1);
-    const targetDate = new Date(Date.now() - weeksAgo * 7 * 24 * 60 * 60 * 1000);
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() - weeksAgo * 7);
     const weekRange = Utils.getWeekRange(targetDate);
 
     const trendData = _buildTrendData(stats.events);

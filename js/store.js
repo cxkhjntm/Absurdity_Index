@@ -9,9 +9,11 @@ const defaultData = {
     title: '新手观察者'
   },
   weeklyReports: [],
+  hasReadReport: false,
   aiConfig: {
     enabled: false,
     apiKey: '',
+    baseUrl: 'https://api.openai.com/v1',
     model: 'gpt-3.5-turbo'
   }
 };
@@ -119,8 +121,9 @@ function getWeeklyStats(weeksAgo = 0) {
   const store = getStore();
   const now = new Date();
   
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay() + 1 - (weeksAgo * 7));
+  const day = now.getDay();
+  const diffToMon = day === 0 ? -6 : 1 - day;
+  const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMon - (weeksAgo * 7));
   startOfWeek.setHours(0, 0, 0, 0);
   
   const endOfWeek = new Date(startOfWeek);
@@ -190,8 +193,11 @@ function importData(jsonString) {
 }
 
 function clearData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
-  return { ...defaultData };
+  const store = getStore();
+  const aiConfig = store.aiConfig || defaultData.aiConfig;
+  const resetStore = { ...defaultData, aiConfig };
+  saveStore(resetStore);
+  return resetStore;
 }
 
 function deleteEvent(eventId) {
@@ -199,10 +205,19 @@ function deleteEvent(eventId) {
   const idx = store.events.findIndex(e => e.id === eventId);
   if (idx === -1) return false;
 
+  const event = store.events[idx];
+  const score = event.score || 0;
+
   // Also delete any achievements linked to this event
   store.achievements = (store.achievements || []).filter(a => a.eventId !== eventId);
 
   store.events.splice(idx, 1);
+  
+  // Deduct from experience
+  store.level.experience = Math.max(0, (store.level.experience || 0) - score);
+  // Re-calculate current level
+  store.level.current = Math.max(1, Math.floor(store.level.experience / 100) + 1);
+
   saveStore(store);
   return true;
 }

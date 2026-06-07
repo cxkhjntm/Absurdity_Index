@@ -786,5 +786,16 @@
 
 
 /* ============================================================
+   EXPORTING OVERRIDES
+   ============================================================ */
+.report-content--exporting,
+.report-content--exporting * {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
+
+/* ============================================================
    END OF REPORT MODULE STYLES
    ============================================================ */
