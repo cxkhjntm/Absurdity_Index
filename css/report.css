@@ -248,6 +248,12 @@
   color: var(--status-error);
 }
 
+/* Delta new (first week with data) */
+.report-stat-card__delta--new {
+  color: var(--accent-blue);
+  font-weight: var(--font-bold);
+}
+
 
 /* ============================================================
    6. CHARTS ROW

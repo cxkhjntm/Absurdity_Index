@@ -177,7 +177,7 @@ const Record = (() => {
 
     // Only save achievement if absurdity_score threshold met
     if (achievementObj && absurdityScore >= 66) {
-      _saveAchievement(achievementObj, savedEvent.id);
+      _saveAchievement(achievementObj, savedEvent.id, level);
     }
 
     _updateLevelWithChance(score, level);
@@ -202,7 +202,6 @@ const Record = (() => {
     _hidePreview();
     _pendingAIResult = null;
     if (els.aiInput) {
-      els.aiInput.value = '';
       els.aiInput.focus();
     }
   }
@@ -322,7 +321,7 @@ const Record = (() => {
     const savedEvent = addEvent(eventData);
 
     if (data.achievement) {
-      _saveAchievement(data.achievement, savedEvent.id);
+      _saveAchievement(data.achievement, savedEvent.id, level);
     }
 
     _updateLevelWithChance(score, level);
@@ -390,8 +389,8 @@ const Record = (() => {
     }, 5000);
   }
 
-  function _saveAchievement(achievement, eventId) {
-    const rarity = _determineRarity(achievement);
+  function _saveAchievement(achievement, eventId, level) {
+    const rarity = _determineRarity(level);
     addAchievement({
       name:        achievement.name || '未命名成就',
       description: achievement.desc || '',
@@ -401,15 +400,20 @@ const Record = (() => {
     });
   }
 
-  function _determineRarity(achievement) {
-    const name = (achievement.name || '').toLowerCase();
-    const desc = (achievement.desc || '').toLowerCase();
-    const combined = name + ' ' + desc;
-
-    if (/传说|legendary|终极|至尊|不朽|永恒/.test(combined)) return 'legendary';
-    if (/史诗|epic|觉醒|崩塌|崩溃|毁灭|终结者/.test(combined)) return 'epic';
-    if (/稀有|rare|认证|终结|完美主义|妄想|强迫症|专家|大师|收藏家|鉴赏/.test(combined)) return 'rare';
-    return 'common';
+  /**
+   * Map event level to achievement rarity.
+   * basic → common, combo → rare, rare → epic, epic → legendary
+   * @param {string} level - event level
+   * @returns {string} rarity
+   */
+  function _determineRarity(level) {
+    const LEVEL_TO_RARITY = {
+      basic:  'common',
+      combo:  'rare',
+      rare:   'epic',
+      epic:   'legendary',
+    };
+    return LEVEL_TO_RARITY[(level || 'basic').toLowerCase()] || 'common';
   }
 
   /**

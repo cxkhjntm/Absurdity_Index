@@ -117,9 +117,17 @@ const Report = (() => {
     const newAchievements = _buildWeekAchievements(weekStart, weekEnd);
 
     const delta = stats.totalAbsurdity - prevStats.totalAbsurdity;
-    const deltaPercent = prevStats.totalAbsurdity > 0
-      ? Math.round((delta / prevStats.totalAbsurdity) * 100)
-      : (stats.totalAbsurdity > 0 ? 100 : 0);
+    let deltaPercent;
+    let deltaType = 'normal'; // 'normal' | 'new' | 'zero'
+    if (prevStats.totalAbsurdity === 0 && stats.totalAbsurdity > 0) {
+      deltaPercent = 0;
+      deltaType = 'new';
+    } else if (prevStats.totalAbsurdity > 0) {
+      deltaPercent = Math.round((delta / prevStats.totalAbsurdity) * 100);
+    } else {
+      deltaPercent = 0;
+      deltaType = 'zero';
+    }
 
     return {
       dateRange:       `${weekRange.startStr} — ${weekRange.endStr}`,
@@ -127,10 +135,12 @@ const Report = (() => {
       eventCount:      stats.totalEvents,
       delta,
       deltaPercent,
+      deltaType,
       trendData,
       distributionData,
       topEvents,
       newAchievements,
+      prevWeekScore:   prevStats.totalAbsurdity,
     };
   }
 
@@ -217,7 +227,10 @@ const Report = (() => {
     }
 
     if (els.weekDelta) {
-      if (data.delta === 0) {
+      if (data.deltaType === 'new') {
+        els.weekDelta.textContent = '🆕 新纪录';
+        els.weekDelta.className = 'report-stat-card__delta report-stat-card__delta--new';
+      } else if (data.delta === 0) {
         els.weekDelta.textContent = '—';
         els.weekDelta.className = 'report-stat-card__delta';
       } else if (data.delta > 0) {
@@ -343,7 +356,17 @@ const Report = (() => {
 
     if (typeof html2canvas === 'undefined') {
       console.error('[Report] html2canvas not loaded');
+      if (typeof showToast === 'function') {
+        showToast('导出失败：截图库未加载', 'error');
+      }
       return;
+    }
+
+    // Disable export button during processing
+    if (els.btnExport) {
+      els.btnExport.disabled = true;
+      const textEl = els.btnExport.querySelector('.btn__text');
+      if (textEl) textEl.textContent = '导出中...';
     }
 
     els.content.classList.add('report-content--exporting');
@@ -365,10 +388,21 @@ const Report = (() => {
       link.download = `absurdity-report-${dateStr}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
+      if (typeof showToast === 'function') {
+        showToast('周报已导出为图片', 'success');
+      }
     }).catch(err => {
       console.error('[Report] Export failed:', err);
+      if (typeof showToast === 'function') {
+        showToast('导出失败：' + (err.message || '未知错误'), 'error');
+      }
     }).finally(() => {
       els.content.classList.remove('report-content--exporting');
+      if (els.btnExport) {
+        els.btnExport.disabled = false;
+        const textEl = els.btnExport.querySelector('.btn__text');
+        if (textEl) textEl.textContent = '导出为图片';
+      }
     });
   }
 

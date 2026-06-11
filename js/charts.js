@@ -253,7 +253,9 @@ function createDistributionChart(canvasId, data) {
           ...COMMON_OPTIONS.plugins.tooltip,
           callbacks: {
             label: function(context) {
-              const percentage = ((context.parsed / total) * 100).toFixed(1);
+              const dataset = context.dataset.data;
+              const currentTotal = dataset.reduce((sum, v) => sum + v, 0);
+              const percentage = currentTotal > 0 ? ((context.parsed / currentTotal) * 100).toFixed(1) : '0.0';
               return ` ${context.label}: ${context.parsed} (${percentage}%)`;
             }
           }

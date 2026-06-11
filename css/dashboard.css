@@ -761,5 +761,44 @@
 
 
 /* ============================================================
+   14. HISTORY LIST: LOAD MORE BUTTON
+   ============================================================ */
+
+.history-list__load-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  margin-top: var(--space-2);
+  background-color: rgba(57, 255, 20, 0.04);
+  border: 1px dashed rgba(57, 255, 20, 0.2);
+  border-radius: var(--radius-md);
+  color: var(--accent-green);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-wide);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.history-list__load-more:hover {
+  background-color: rgba(57, 255, 20, 0.08);
+  border-color: rgba(57, 255, 20, 0.4);
+  box-shadow: 0 0 12px rgba(57, 255, 20, 0.1);
+  transform: translateY(-1px);
+}
+
+.history-list__load-more:active {
+  transform: translateY(0);
+}
+
+.history-list__load-more .btn__icon {
+  font-size: var(--text-lg);
+}
+
+
+/* ============================================================
    END OF DASHBOARD STYLES
    ============================================================ */

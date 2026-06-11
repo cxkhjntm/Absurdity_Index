@@ -4,6 +4,8 @@ const Dashboard = (() => {
   let els = {};
   let miniChart = null;
   let _lastScore = 0;
+  const HISTORY_PAGE_SIZE = 20;
+  let _historyDisplayCount = HISTORY_PAGE_SIZE;
 
   const LEVEL_STAGES = [
     { stage: 1, min: 0,   max: 50,  title: '形式主义实习生' },
@@ -113,8 +115,8 @@ const Dashboard = (() => {
         els.levelProgress.style.width = '100%';
         els.levelProgressTxt.textContent = '已达到最高阶段';
       } else {
-        const rangeSize = stage.max - stage.min + 1;
-        const progress = Utils.clamp(((totalScore - stage.min + 1) / rangeSize) * 100, 0, 100);
+        const range = stage.max - stage.min;
+        const progress = range > 0 ? Utils.clamp(((totalScore - stage.min) / range) * 100, 0, 100) : 0;
         els.levelProgress.style.width = `${progress.toFixed(1)}%`;
         els.levelProgressTxt.textContent = `${totalScore} / ${stage.max} 到下一阶段`;
       }
@@ -252,6 +254,7 @@ const Dashboard = (() => {
       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
     if (events.length === 0) {
+      _historyDisplayCount = HISTORY_PAGE_SIZE;
       els.historyList.innerHTML = `
         <div class="history-list__empty">
           <span class="empty-icon">📭</span>
@@ -261,7 +264,10 @@ const Dashboard = (() => {
       return;
     }
 
-    els.historyList.innerHTML = events.map(ev => {
+    const visibleEvents = events.slice(0, _historyDisplayCount);
+    const hasMore = events.length > _historyDisplayCount;
+
+    let html = visibleEvents.map(ev => {
       const level = (ev.level || 'basic').toLowerCase();
       const icon  = LEVEL_ICONS[level] || '⚡';
       const title = ev.title || ev.desc || '未命名事件';
@@ -295,6 +301,29 @@ const Dashboard = (() => {
         </div>
       `;
     }).join('');
+
+    if (hasMore) {
+      const remaining = events.length - _historyDisplayCount;
+      html += `
+        <button class="history-list__load-more" id="btn-load-more-history" type="button">
+          <span class="btn__icon">📜</span>
+          <span>加载更多（还有 ${remaining} 条）</span>
+        </button>
+      `;
+    }
+
+    els.historyList.innerHTML = html;
+
+    // Bind load-more button
+    const loadMoreBtn = document.getElementById('btn-load-more-history');
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('click', _handleLoadMore, { once: true });
+    }
+  }
+
+  function _handleLoadMore() {
+    _historyDisplayCount += HISTORY_PAGE_SIZE;
+    renderHistoryList();
   }
 
   function _handleHistoryClick(e) {
@@ -357,5 +386,6 @@ const Dashboard = (() => {
     renderMiniTrend,
     renderRecentEvents,
     renderHistoryList,
+    resetHistoryPagination() { _historyDisplayCount = HISTORY_PAGE_SIZE; },
   };
 })();
