@@ -308,26 +308,49 @@
 }
 
 .dashboard__recent-events .event-item:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.08);
   transform: translateX(2px);
 }
 
-/* Level-specific left border colors */
+/* Level-specific left border colors and hover states */
 .dashboard__recent-events .event-item--basic {
   border-left-color: var(--level-basic);
+}
+.dashboard__recent-events .event-item--basic:hover {
+  border-color: rgba(57, 255, 20, 0.35);
+  border-left-color: var(--level-basic);
+  background-color: var(--bg-card-hover);
+  box-shadow: 0 0 15px rgba(57, 255, 20, 0.15), 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .dashboard__recent-events .event-item--combo {
   border-left-color: var(--level-combo);
 }
+.dashboard__recent-events .event-item--combo:hover {
+  border-color: rgba(0, 212, 255, 0.35);
+  border-left-color: var(--level-combo);
+  background-color: var(--bg-card-hover);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.15), 0 2px 8px rgba(0, 0, 0, 0.4);
+}
 
 .dashboard__recent-events .event-item--rare {
   border-left-color: var(--level-rare);
 }
+.dashboard__recent-events .event-item--rare:hover {
+  border-color: rgba(191, 64, 191, 0.35);
+  border-left-color: var(--level-rare);
+  background-color: var(--bg-card-hover);
+  box-shadow: 0 0 15px rgba(191, 64, 191, 0.15), 0 2px 8px rgba(0, 0, 0, 0.4);
+}
 
 .dashboard__recent-events .event-item--epic {
   border-left-color: var(--level-epic);
+  border-color: rgba(255, 215, 0, 0.15);
+}
+.dashboard__recent-events .event-item--epic:hover {
+  border-color: rgba(255, 215, 0, 0.4);
+  border-left-color: var(--level-epic);
+  background-color: var(--bg-card-hover);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.18), 0 0 40px rgba(255, 215, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 /* Event item icon */
@@ -389,17 +412,7 @@
   text-shadow: 0 0 6px rgba(255, 215, 0, 0.3);
 }
 
-/* Epic events get a subtle background highlight */
-.dashboard__recent-events .event-item--epic {
-  background-color: rgba(255, 215, 0, 0.03);
-  border-color: rgba(255, 215, 0, 0.08);
-  border-left-color: var(--level-epic);
-}
 
-.dashboard__recent-events .event-item--epic:hover {
-  background-color: rgba(255, 215, 0, 0.06);
-  border-color: rgba(255, 215, 0, 0.15);
-}
 
 
 /* ============================================================
@@ -641,18 +654,43 @@
 }
 
 .history-item:hover {
-  background-color: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.1);
   transform: translateX(2px);
 }
 
-/* Level border colors */
+/* Level border colors and hover states */
 .history-item--basic  { border-left-color: var(--accent-green); }
+.history-item--basic:hover {
+  border-color: rgba(57, 255, 20, 0.35);
+  border-left-color: var(--accent-green);
+  background-color: var(--bg-card-hover);
+  box-shadow: 0 0 15px rgba(57, 255, 20, 0.15), 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
 .history-item--combo  { border-left-color: var(--accent-blue); }
+.history-item--combo:hover {
+  border-color: rgba(0, 212, 255, 0.35);
+  border-left-color: var(--accent-blue);
+  background-color: var(--bg-card-hover);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.15), 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
 .history-item--rare   { border-left-color: var(--accent-purple); }
+.history-item--rare:hover {
+  border-color: rgba(191, 64, 191, 0.35);
+  border-left-color: var(--accent-purple);
+  background-color: var(--bg-card-hover);
+  box-shadow: 0 0 15px rgba(191, 64, 191, 0.15), 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
 .history-item--epic   {
   border-left-color: var(--accent-gold);
-  background-color: rgba(255, 215, 0, 0.02);
+  border-color: rgba(255, 215, 0, 0.15);
+}
+.history-item--epic:hover {
+  border-color: rgba(255, 215, 0, 0.4);
+  border-left-color: var(--accent-gold);
+  background-color: var(--bg-card-hover);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.18), 0 0 40px rgba(255, 215, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .history-item__header {
